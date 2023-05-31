@@ -20,7 +20,9 @@ public:
     ReconstructorMP(std::string json_str, int n_threads);
     virtual ~ReconstructorMP();
 
+    void ProcessEvents (std::vector <std::vector <double> > &A);
     void ProcessEvents (std::vector <std::vector <double> > &A, std::vector <std::vector <bool> > &Sat);
+    void ProcessEvents (std::vector <std::vector <double> > &A, std::vector <std::vector <bool> > &Sat, std::vector <std::vector <double> > &Guess);
 
 // public interface
 public:
@@ -28,6 +30,7 @@ public:
     std::vector <int> getDof() {return rec_dof;}
     std::vector <double> getRecX() {return rec_x;}
     std::vector <double> getRecY() {return rec_y;}
+    std::vector <double> getRecZ() {return rec_z;}
     std::vector <double> getRecE() {return rec_e;}
     std::vector <double> getRecMin() {return rec_min;}
     std::vector <double> getChi2Min() {return rec_chi2min;}
@@ -46,6 +49,7 @@ public:
     std::vector <int> rec_status;         // returned status of reconstruction
     std::vector <double> rec_x;			// reconstructed X position
     std::vector <double> rec_y;			// reconstructed Y position
+    std::vector <double> rec_z;			// reconstructed Z position
     std::vector <double> rec_e;           // reconstructed energy
     std::vector <double> rec_min;         // minimum found by reconstruction
     std::vector <double> rec_chi2min;     // reduced (?) chi-squared from reconstruction
@@ -68,12 +72,15 @@ public:
 
     void setRMstepX(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMstepX(val);}
     void setRMstepY(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMstepY(val);}
+    void setRMstepZ(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMstepZ(val);}
     void setRMstepEnergy(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMstepEnergy(val);}
     void setRMmaxFuncCalls(int val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMmaxFuncCalls(val);}
     void setRMmaxIterations(int val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMmaxIterations(val);}
     void setRMtolerance(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setRMtolerance(val);}
     void setMinuitVerbosity(int val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setMinuitVerbosity(val);}
     void setAutoE(bool val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setAutoE(val);}
+    void setFixedZ(double val) {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setFixedZ(val);}
+    void setFreeZ() {for (Reconstructor* r : recs) dynamic_cast<RecMinuit*>(r)->setFreeZ();}
 };
 
 class RecLS_MP : public RecMinuitMP

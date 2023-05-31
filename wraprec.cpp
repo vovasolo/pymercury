@@ -21,8 +21,16 @@ PYBIND11_MODULE(mercury, m) {
 
     py::class_<RecLS>(m, "RecLS")
         .def(py::init<std::string &, bool>())
+/*
+   virtual bool ProcessEvent(std::vector <double> &a);
+    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat) = 0;
+    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess);
 
-        .def("ProcessEvent", &RecLS::ProcessEvent)
+    .def("Eval", (double (LRModel::*) (int, double, double, double)) &LRModel::Eval)
+*/
+        .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &)) &RecLS::ProcessEvent)
+        .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &, std::vector <bool> &)) &RecLS::ProcessEvent)
+        .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &, std::vector <bool> &, std::vector <double> &)) &RecLS::ProcessEvent)
 
         .def("getGuessX", &RecLS::getGuessX)
         .def("getGuessY", &RecLS::getGuessY)
@@ -54,10 +62,10 @@ PYBIND11_MODULE(mercury, m) {
 
         .def("setMinuitVerbosity", &RecLS::setMinuitVerbosity)
 
-        .def("setGuessPosition", &RecLS::setGuessPosition)
-        .def("setGuessPositionAuto", &RecLS::setGuessPositionAuto)
-        .def("setGuessEnergy", &RecLS::setGuessEnergy)
-        .def("setGuessEnergyAuto", &RecLS::setGuessEnergyAuto)
+//        .def("setGuessPosition", &RecLS::setGuessPosition)
+//        .def("setGuessPositionAuto", &RecLS::setGuessPositionAuto)
+//        .def("setGuessEnergy", &RecLS::setGuessEnergy)
+//        .def("setGuessEnergyAuto", &RecLS::setGuessEnergyAuto)
 
         .def("getSumSignal", &RecLS::getSumSignal)
         .def("getSumLRF", &RecLS::getSumLRF)
@@ -70,7 +78,9 @@ PYBIND11_MODULE(mercury, m) {
     py::class_<RecML>(m, "RecML")
         .def(py::init<std::string &>())
 
-        .def("ProcessEvent", &RecML::ProcessEvent)
+        .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &)) &RecML::ProcessEvent)
+        .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &, std::vector <bool> &)) &RecML::ProcessEvent)
+        .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &, std::vector <bool> &, std::vector <double> &)) &RecML::ProcessEvent)
 
         .def("getGuessX", &RecML::getGuessX)
         .def("getGuessY", &RecML::getGuessY)
@@ -102,10 +112,10 @@ PYBIND11_MODULE(mercury, m) {
 
         .def("setMinuitVerbosity", &RecML::setMinuitVerbosity)
 
-        .def("setGuessPosition", &RecML::setGuessPosition)
-        .def("setGuessPositionAuto", &RecML::setGuessPositionAuto)
-        .def("setGuessEnergy", &RecML::setGuessEnergy)
-        .def("setGuessEnergyAuto", &RecML::setGuessEnergyAuto)
+//        .def("setGuessPosition", &RecML::setGuessPosition)
+//        .def("setGuessPositionAuto", &RecML::setGuessPositionAuto)
+//        .def("setGuessEnergy", &RecML::setGuessEnergy)
+//        .def("setGuessEnergyAuto", &RecML::setGuessEnergyAuto)
 
         .def("getSumSignal", &RecML::getSumSignal)
         .def("getSumLRF", &RecML::getSumLRF)
@@ -118,7 +128,10 @@ PYBIND11_MODULE(mercury, m) {
         py::class_<ReconstructorMP>(m, "RecCoG_MP")
         .def(py::init<std::string &, int>())
 
-        .def("ProcessEvents", &ReconstructorMP::ProcessEvents)
+//        .def("ProcessEvents", &ReconstructorMP::ProcessEvents)
+        .def("ProcessEvents", (void (ReconstructorMP::*) (std::vector <std::vector <double> > &)) &ReconstructorMP::ProcessEvents)
+        .def("ProcessEvents", (void (ReconstructorMP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &)) &ReconstructorMP::ProcessEvents)
+        .def("ProcessEvents", (void (ReconstructorMP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &, std::vector <std::vector <double> > &)) &ReconstructorMP::ProcessEvents)        
         
         .def("getRecX", &ReconstructorMP::getRecX)
         .def("getRecY", &ReconstructorMP::getRecY)
@@ -130,7 +143,11 @@ PYBIND11_MODULE(mercury, m) {
         py::class_<RecLS_MP>(m, "RecLS_MP")
         .def(py::init<std::string &, int, bool>())
 
-        .def("ProcessEvents", &RecLS_MP::ProcessEvents)
+//        .def("ProcessEvents", &RecLS_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecLS_MP::*) (std::vector <std::vector <double> > &)) &RecLS_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecLS_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &)) &RecLS_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecLS_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &, std::vector <std::vector <double> > &)) &RecLS_MP::ProcessEvents)        
+
 
         .def("getRecStatus", &RecLS_MP::getRecStatus)
         .def("getDof", &RecLS_MP::getDof)        
@@ -165,7 +182,11 @@ PYBIND11_MODULE(mercury, m) {
         py::class_<RecML_MP>(m, "RecML_MP")
         .def(py::init<std::string &, int>())
 
-        .def("ProcessEvents", &RecML_MP::ProcessEvents)
+//        .def("ProcessEvents", &RecML_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecML_MP::*) (std::vector <std::vector <double> > &)) &RecML_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecML_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &)) &RecML_MP::ProcessEvents)
+        .def("ProcessEvents", (void (RecML_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &, std::vector <std::vector <double> > &)) &RecML_MP::ProcessEvents)        
+
 
         .def("getRecStatus", &RecML_MP::getRecStatus)
         .def("getDof", &RecML_MP::getDof)        

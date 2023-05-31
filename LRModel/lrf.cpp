@@ -5,6 +5,7 @@
 #include "lrfaxial3d.h"
 #include "lrfxy.h"
 #include "lrfxyz.h"
+#include "lrfcomp.h"
 
 std::string LRF::gjson_err("no error");
 
@@ -24,7 +25,9 @@ LRF* LRF::mkFromJson(const Json &json){
     else if (type == "XY")
         lrf = new LRFxy(json);
     else if (type == "XYZ")
-        lrf = new LRFxyz(json); 
+        lrf = new LRFxyz(json);
+    else if (type == "Composite")
+        lrf = new LRFcomp(json);    
     else {
         gjson_err = std::string("unknown type");
         return nullptr; // unknown type

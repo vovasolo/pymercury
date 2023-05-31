@@ -26,7 +26,9 @@ public:
     Reconstructor(std::string json_str);
     virtual ~Reconstructor();
 
+    virtual bool ProcessEvent(std::vector <double> &a);
     virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat) = 0;
+    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess);
 
 // cost functions
     double getChi2(double x, double y, double z, double energy, bool weighted = true);
@@ -39,16 +41,19 @@ public:
 
 // public interface
 public:
+    std::string getVersion() {return "Pereira+CERN";}
     double getGuessX() {return guess_x;}
     double getGuessY() {return guess_y;}
+    double getGuessZ() {return guess_z;}
     double getGuessE() {return guess_e;}
     int getRecStatus() {return rec_status;}
     int getDof() {return rec_dof;}
     double getRecX() {return rec_x;}
     double getRecY() {return rec_y;}
+    double getRecZ() {return rec_z;}
     double getRecE() {return rec_e;}
     double getRecMin() {return rec_min;}
-    double getChi2Min() {return getChi2(rec_x, rec_y, 0., rec_e);}
+    double getChi2Min() {return getChi2(rec_x, rec_y, rec_z, rec_e);}
     double getCovXX() {return cov_xx;}
     double getCovYY() {return cov_yy;}
     double getCovXY() {return cov_xy;}
@@ -59,11 +64,11 @@ public:
     void setRecCutoffRadius(double val) {rec_cutoff_radius = val;}
     void setEnergyCalibration(double val) {ecal = val;}
 //    void setGain(int id, double val) {sensor.at(id).gain = val;}
-    void setGuessPosition(double x, double y, double z=0.) 
-            {guess_x = x; guess_y = y; guess_z = z; guess_pos_auto = false;}
-    void setGuessPositionAuto() {guess_pos_auto = true;}
-    void setGuessEnergy(double e) {guess_e = e; guess_e_auto = false;}
-    void setGuessEnergyAuto() {guess_e_auto = true;}
+//    void setGuessPosition(double x, double y, double z=0.) 
+//            {guess_x = x; guess_y = y; guess_z = z; guess_pos_auto = false;}
+//    void setGuessPositionAuto() {guess_pos_auto = true;}
+//    void setGuessEnergy(double e) {guess_e = e; guess_e_auto = false;}
+//    void setGuessEnergyAuto() {guess_e_auto = true;}
 
     double getSumSignal();
     double getSumLRF(double x, double y, double z);
@@ -113,6 +118,7 @@ protected:
     int rec_status;         // returned status of reconstruction
     double rec_x;			// reconstructed X position
     double rec_y;			// reconstructed Y position
+    double rec_z;			// reconstructed Z position
     double rec_e;           // reconstructed energy
     double rec_min;         // reduced best chi-squared from reconstruction
     int rec_dof;			// degrees of freedom
@@ -128,16 +134,21 @@ public:
     RecMinuit(std::string json_str);
     virtual ~RecMinuit();
     virtual void InitCostFunction() = 0;
+    using Reconstructor::ProcessEvent; // explicitly use ProcessEvent from the base class
     virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat);
+    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess);
 
     void setRMstepX(double val) {RMstepX = val;}
     void setRMstepY(double val) {RMstepY = val;}
+    void setRMstepZ(double val) {RMstepZ = val;}
     void setRMstepEnergy(double val) {RMstepEnergy = val;}
     void setRMmaxFuncCalls(int val) {RootMinimizer->SetMaxFunctionCalls(RMmaxFuncCalls = val);}
     void setRMmaxIterations(int val) {RootMinimizer->SetMaxIterations(RMmaxIterations = val);}
     void setRMtolerance(double val) {RootMinimizer->SetTolerance(RMtolerance = val);}
     void setMinuitVerbosity(int val);
     void setAutoE(bool val) {fAutoE = val;}
+    void setFixedZ(double val) {fFixedZ = true; fixedZ = val;}
+    void setFreeZ() {fFixedZ = false;}
 
 protected:
 // ROOT/Minuit stuff
@@ -146,6 +157,7 @@ protected:
 // initial steps
     double RMstepX = 1.;
     double RMstepY = 1.;
+    double RMstepZ = 1.;
     double RMstepEnergy = 0.;
 // control over MINUIT2 stopping conditions
     int RMmaxFuncCalls = 500;       // Max function calls
@@ -158,6 +170,8 @@ protected:
 public:
     bool init_done = false;
     bool fAutoE = false;
+    bool fFixedZ = true;
+    double fixedZ = 0.;
 };
 
 class RecLS : public RecMinuit

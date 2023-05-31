@@ -75,7 +75,7 @@ public:
     LRModel(std::string json_str);
     ~LRModel();
 
-    std::string Version() {return "1.00";}
+    std::string Version() {return "1.01";}
 
 // enabled/disabled sensors
     void SetDisabled(int id) {Sensor.at(id).disabled = true;}
@@ -184,9 +184,14 @@ public:
     double Eval(int id, double x, double y, double z);
     double EvalDrvX(int id, double x, double y, double z);
     double EvalDrvY(int id, double x, double y, double z);
+// direct coordinate vector data versions
+//    bool InDomain(int id, std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
+    std::vector<double> Eval(int id, const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &z);
+//    double EvalDrvX(int id, std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
+//    double EvalDrvY(int id, std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
 // utility (plotting aid)
     double EvalAxial(int id, double r);
-// direct coordinate vector versions
+// direct coordinate multiple sensor versions
     std::vector <bool> InDomainAll(double x, double y, double z);
     std::vector <bool> InDomainList(std::vector <int> list, double x, double y, double z);
     std::vector <double> EvalAll(double x, double y, double z);
@@ -202,8 +207,10 @@ public:
     // binned
     bool AddFitData(int id, const std::vector <Vec4data> &data);
     bool AddFitRawData(int id, const std::vector <Vec3data> &xyz, const std::vector <double> &a, const std::vector <bool> &good);
-    bool FitSensor(int id);
-    bool FitGroup(int gid);
+    void FitSensor(int id);
+    void FitGroup(int gid);
+    void ClearSensorFitData(int id);
+    void ClearGroupFitData(int gid);
     void ClearAllFitData();
 
 // Correction factors (light collection)

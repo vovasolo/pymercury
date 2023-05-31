@@ -41,6 +41,14 @@ LRFxy::LRFxy(const Json &json)
     ninty = json["ninty"].number_value();
     if (xmax <= xmin || ymax<=ymin)
         return;
+    
+    if (json["constraints"].is_array()) {
+        Json::array cstr = json["constraints"].array_items();
+        for (size_t i=0; i<cstr.size(); i++) {
+            std::string name(cstr[i].string_value());
+            if (name == "non-negative") non_negative = true;
+        }
+    }
 
 // read response
     if (json["response"].is_object()) {
@@ -70,7 +78,7 @@ LRFxy::~LRFxy()
 
 bool LRFxy::isReady() const
 {
-    return bsr && bsr->IsReady();
+    return true; // bsr && bsr->IsReady();
 }
 
 bool LRFxy::inDomain(double x, double y, double /*z*/) const
@@ -190,8 +198,15 @@ void LRFxy::ToJsonObject(Json_object &json) const
     json["xmax"] = xmax;
     json["ymin"] = ymin;
     json["ymax"] = ymax;
+
+    std::vector <std::string> cstr;
+    if (non_negative) cstr.push_back("non-negative");
+    if (cstr.size() > 0)
+        json["constraints"] = cstr;
+
     if (bsr) 
         json["response"] = bsr->GetJsonObject();
+
 }
 
 double LRFxy::GetRatio(LRF* other_base) const

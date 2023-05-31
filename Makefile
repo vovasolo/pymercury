@@ -6,13 +6,16 @@ ROOTINCLUDES = -I$(shell root-config --incdir)
 ROOTFLAGS = $(shell root-config --cflags)
 ROOTLIBS = $(shell root-config --libs) -lMinuit2
 OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o
-OBJSLRM = compress.o lrfaxial.o lrfaxial3d.o lrfxy.o lrfxyz.o lrf.o lrfio.o lrmodel.o transform.o
+OBJSLRM = compress.o lrfaxial.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
 pymercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o wraprec.o
 	$(CXX) -shared -o mercury.so $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o wraprec.o $(ROOTLIBS) -fopenmp
 
 pylrm: $(OBJS123) $(OBJSLRM) wraplrm.o
 	$(CXX) -shared -o lrmodel.so $(OBJS123) $(OBJSLRM) wraplrm.o -fopenmp
+
+test: $(OBJS123) $(OBJSLRM) test.o 
+	$(CXX) -o test $(OBJS123) $(OBJSLRM) test.o -fopenmp
 
 json11.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) lib/json11.cpp
@@ -47,6 +50,9 @@ lrfxy.o:
 lrfxyz.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrfxyz.cpp	
 
+lrfcomp.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrfcomp.cpp
+
 lrmodel.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrmodel.cpp		
 	
@@ -64,6 +70,9 @@ wraplrm.o:
 
 wraprec.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) $(ROOTINCLUDES) wraprec.cpp
+
+test.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) test.cpp
 	
 clean:
 	rm -f *.o *.so

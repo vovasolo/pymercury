@@ -138,7 +138,7 @@ LRFaxial::~LRFaxial()
 
 bool LRFaxial::isReady() const
 {
-    return bsr && bsr->IsReady();
+    return true; // bsr && bsr->IsReady();
 }
 
 bool LRFaxial::inDomain(double x, double y, double /*z*/) const

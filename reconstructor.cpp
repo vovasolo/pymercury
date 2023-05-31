@@ -32,6 +32,18 @@ Reconstructor::~Reconstructor()
     if (!external_lrm) delete lrm;
 }
 
+bool Reconstructor::ProcessEvent(std::vector <double> &a)
+{
+    std::vector <bool> sat(a.size(), false);
+    return ProcessEvent(a, sat);
+}
+
+bool Reconstructor::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess)
+{
+    std::cout << "Reconstructor::ProcessEvent() was called with guess vector supplied" << std::endl;
+    return false;
+}
+
 // Check for static and dynamic passives + saturation
 void Reconstructor::checkActive()
 {
@@ -259,6 +271,16 @@ void RecMinuit::setMinuitVerbosity(int val)
 
 bool RecMinuit::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat)
 {
+    std::vector <double> t(0);
+    return ProcessEvent(a, sat, t);
+}
+
+// initial guess options:
+// size 0: x,y from CoG, z=0, energy auto
+// size 3: coordinates supplied, energy auto
+// size 4: all supplied
+bool RecMinuit::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess)
+{
     if (!init_done) {
         InitCostFunction();
         RootMinimizer->SetFunction(*FunctorLSML);
@@ -273,26 +295,45 @@ bool RecMinuit::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat)
     }
 
 // initial guess
-    if (guess_pos_auto)
+    if (guess.size() == 0) {
         guessByCOG();
-    if (guess_e_auto)    
-        guess_e = getSumSignal()/getSumLRF(guess_x, guess_y, 0.);
-//        guess_e = getSumSignal()*ecal; // old version  
-
-// determine active sensors and see if there are enough for reconstruction
-    checkActive();
-    rec_dof = Active.size() - 3;
-    if (rec_dof < 1) {
-        rec_status = 6;
+        guess_z = fFixedZ ? fixedZ : 0.;
+        guess_e = getSumSignal()/getSumLRF(guess_x, guess_y, guess_z);
+    } else if (guess.size() == 3) {
+        guess_x = guess[0];
+        guess_y = guess[1];
+        guess_z = fFixedZ ? fixedZ :guess[2];
+        guess_e = getSumSignal()/getSumLRF(guess_x, guess_y, guess_z);
+    } else if (guess.size() == 4) {
+        guess_x = guess[0];
+        guess_y = guess[1];
+        guess_z = fFixedZ ? fixedZ :guess[2];
+        guess_e = guess[3];        
+    } else {
+        rec_status = 7;
         return false;
     }
 
 // set initial variables to minimize
     RootMinimizer->SetVariable(0, "x", guess_x, RMstepX);
     RootMinimizer->SetVariable(1, "y", guess_y, RMstepY);
+    if (fFixedZ) 
+        RootMinimizer->SetFixedVariable(2, "z", fixedZ);
+    else
+        RootMinimizer->SetVariable(2, "z", guess_z, RMstepZ);
     double step_e = RMstepEnergy > 0 ? RMstepEnergy : guess_e*0.2;
     if (!fAutoE)
-        RootMinimizer->SetLowerLimitedVariable(2, "e", guess_e, step_e, 1.0e-6);
+        RootMinimizer->SetLowerLimitedVariable(3, "e", guess_e, step_e, 1.0e-6);
+    int ndim = RootMinimizer->NDim();
+
+// determine active sensors and see if there are enough for reconstruction
+
+    checkActive();
+    rec_dof = Active.size() - ndim;
+    if (rec_dof < 1) {
+        rec_status = 6;
+        return false;
+    }
 
     // do the minimization
     bool fOK = false;
@@ -304,11 +345,11 @@ bool RecMinuit::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat)
         const double *xs = RootMinimizer->X();
         rec_x = xs[0];
         rec_y = xs[1];
-        rec_e = fAutoE ? getSumActiveSignal()/getSumActiveLRF(rec_x, rec_y, 0.) : xs[2];
+        rec_z = fFixedZ ? fixedZ : xs[2];
+        rec_e = fAutoE ? getSumActiveSignal()/getSumActiveLRF(rec_x, rec_y, rec_z) : xs[3];
         rec_min = RootMinimizer->MinValue();
 
     // Calc Hessian matrix and get status
-        int ndim = RootMinimizer->NDim();
         double cov[ndim*ndim];
         RootMinimizer->Hesse();
         RootMinimizer->GetCovMatrix(cov);
@@ -333,14 +374,14 @@ RecLS::RecLS(std::string json_str, bool weighted) : RecLS(new LRModel(json_str))
 void RecLS::InitCostFunction()
 {
 //    RecCostLS = new CostLS(this);
-    FunctorLSML = new ROOT::Math::Functor(this, &RecLS::Cost, fAutoE ? 2 : 3);
+    FunctorLSML = new ROOT::Math::Functor(this, &RecLS::Cost, fAutoE ? 3 : 4);
     LastMiniValue = 1.e6; //reset for the new event
 }
 
 double RecLS::Cost(const double *p) // 0-x, 1-y, 2-energy
 {
 //    double energy = fAutoE ? getSumActiveSignal()/getSumActiveLRF(p[0], p[1], 0.) : p[2];
-    return fAutoE ? getChi2autoE(p[0], p[1], 0., fWeighted) : getChi2(p[0], p[1], 0., p[2], fWeighted);
+    return fAutoE ? getChi2autoE(p[0], p[1], p[2], fWeighted) : getChi2(p[0], p[1], p[2], p[3], fWeighted);
 }
 
 // ============== Maximum Likelihood ===============
@@ -351,14 +392,14 @@ RecML::RecML(std::string json_str) : RecML(new LRModel(json_str)) {}
 void RecML::InitCostFunction()
 {
 //    RecCostML = new CostML(this);
-    FunctorLSML = new ROOT::Math::Functor(this, &RecML::Cost, fAutoE ? 2 : 3);
+    FunctorLSML = new ROOT::Math::Functor(this, &RecML::Cost, fAutoE ? 3 : 4);
     LastMiniValue = 1.e100; // reset for the new event
 }
 
 double RecML::Cost(const double *p) // 0-x, 1-y, 2-energy
 {
 //    double energy = fAutoE ? getSumActiveSignal()/getSumActiveLRF(p[0], p[1], 0.) : p[2];
-    return fAutoE ? getLogLHautoE(p[0], p[1], 0.) : getLogLH(p[0], p[1], 0., p[2]);
+    return fAutoE ? getLogLHautoE(p[0], p[1], p[2]) : getLogLH(p[0], p[1], p[2], p[3]);
 }
 
 // ============== Center of Gravity ===============

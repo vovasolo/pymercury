@@ -94,7 +94,7 @@ LRFaxial3d::~LRFaxial3d()
 
 bool LRFaxial3d::isReady() const
 {
-    return (bs2r != 0) && bs2r->IsReady();
+    return true; // (bs2r != 0) && bs2r->IsReady();
 }
 
 bool LRFaxial3d::inDomain(double x, double y, double z) const
@@ -124,11 +124,12 @@ double LRFaxial3d::evalDrvY(double x, double y, double z) const
 
 BSfit2D *LRFaxial3d::InitFit()
 {
-    if (!non_negative && z_slope == 0)
+    if (!flattop && !non_negative && z_slope == 0)
         return new BSfit2D(bs2r);
 
     ConstrainedFit2D *cf = new ConstrainedFit2D(bs2r);
     if (non_negative) cf->ForceNonNegative();
+    if (flattop) cf->ForceFlatTopX();
     if (z_slope != 0) cf->SetSlopeY(z_slope);
     return cf;
 }
@@ -243,15 +244,24 @@ double LRFaxial3d::GetRatio(LRF* other_base) const
 void LRFaxial3d::ToJsonObject(Json_object &json) const
 {
     json["type"] = std::string(type());
+    json["rmin"] = rmin;
     json["rmax"] = rmax;
     json["x0"] = x0;
     json["y0"] = y0;
     json["zmin"] = zmin;
     json["zmax"] = zmax;
+
+    std::vector <std::string> cstr;
+    if (non_negative) cstr.push_back("non-negative");
+    if (flattop) cstr.push_back("flattop");
+    if (cstr.size() > 0)
+        json["constraints"] = cstr;
+
     if (bs2r) {
         Json_object json1;
         json1["tpspline3"] = bs2r->GetJsonObject();
         json["response"] = json1;
     }
+
     if (compress) json["compression"] = compress->GetJsonObject();
 }

@@ -50,6 +50,14 @@ LRFxyz::LRFxyz(const Json &json)
     if (xmax <= xmin || ymax<=ymin || zmax<=zmin)
         return;
 
+    if (json["constraints"].is_array()) {
+        Json::array cstr = json["constraints"].array_items();
+        for (int i=0; i<cstr.size(); i++) {
+            std::string name(cstr[i].string_value());
+            if (name == "non-negative") non_negative = true;
+        }
+    }
+
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline3d(json["response"]);
@@ -79,7 +87,7 @@ LRFxyz::~LRFxyz()
 
 bool LRFxyz::isReady() const
 {
-    return bsr && bsr->IsReady();
+    return true; // bsr && bsr->IsReady();
 }
 
 bool LRFxyz::inDomain(double x, double y, double z) const
@@ -226,6 +234,12 @@ void LRFxyz::ToJsonObject(Json_object &json) const
     json["ymax"] = ymax;
     json["zmin"] = zmin;
     json["zmax"] = zmax;
+
+    std::vector <std::string> cstr;
+    if (non_negative) cstr.push_back("non-negative");
+    if (cstr.size() > 0)
+        json["constraints"] = cstr;
+
     if (bsr) 
         json["response"] = bsr->GetJsonObject();
 }

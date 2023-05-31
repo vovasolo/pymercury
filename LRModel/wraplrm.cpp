@@ -94,6 +94,7 @@ PYBIND11_MODULE(lrmodel, m) {
 // evaluation
         .def("InDomain", (bool (LRModel::*) (int, double, double, double)) &LRModel::InDomain)
         .def("Eval", (double (LRModel::*) (int, double, double, double)) &LRModel::Eval)
+	    .def("Eval", (std::vector<double> (LRModel::*) (int, const std::vector <double> &, const std::vector <double> &, const std::vector <double> &)) &LRModel::Eval)
         .def("EvalDrvX", (double (LRModel::*) (int, double, double, double)) &LRModel::EvalDrvX)
         .def("EvalDrvY", (double (LRModel::*) (int, double, double, double)) &LRModel::EvalDrvY)
         .def("InDomainAll", &LRModel::InDomainAll)
@@ -111,6 +112,8 @@ PYBIND11_MODULE(lrmodel, m) {
         .def("AddFitData", &LRModel::AddFitData)
         .def("FitSensor", &LRModel::FitSensor)
         .def("FitGroup", &LRModel::FitGroup)
+        .def("ClearSensorFitData", &LRModel::ClearSensorFitData)
+        .def("ClearGroupFitData", &LRModel::ClearGroupFitData)
         .def("ClearAllFitData", &LRModel::ClearAllFitData)
 
 // Sum of LRFs (used in light collection correction)

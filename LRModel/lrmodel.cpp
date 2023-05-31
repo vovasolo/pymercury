@@ -269,7 +269,34 @@ double LRModel::EvalAxial(int id, double r)
     return f ? f->evalAxial(r)*GetGain(id) : 0;
 }
 
-// Evaluation: direct coordinate vector versions
+// Evaluation: direct coordinate vector data versions
+
+std::vector<double> LRModel::Eval(int id, const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &z)
+{
+    size_t vlen = x.size();
+    if (vlen != y.size() || vlen != z.size())
+        throw std::length_error("Eval: Input vectors must be of the same length");
+    
+    LRF *f = GetLRF(id);
+    if (!f)
+        throw std::runtime_error(std::string("Eval: sensor with id = ") + std::to_string(id) + "does not exist or has no LRF");
+
+    Transform *trf = GetTransform(id);
+    double gain = GetGain(id);
+    double xx, yy, zz;
+    std::vector<double> res(vlen);
+    
+    for (size_t i=0; i<vlen; i++) {
+        xx = x[i]; yy = y[i]; zz = z[i];
+        if (trf)
+            trf->DoTransform(&xx, &yy, &zz);
+        res[i] = f->eval(xx, yy, zz)*gain;
+    }
+
+    return res;
+}
+
+// Evaluation: direct coordinate multiple sensor versions
 
 std::vector <bool> LRModel::InDomainAll(double x, double y, double z)
 {
@@ -474,15 +501,40 @@ bool LRModel::AddFitRawData(int id, const std::vector <Vec3data> &xyz, const std
     return f ? f->addData(trdata) : false;
 }
 
-bool LRModel::FitSensor(int id)
+void LRModel::FitSensor(int id)
 {
     LRF *f = GetLRF(id);
-    return f ? f->doFit() : false;
+    if (f)
+        f->doFit();
+    else 
+        throw std::runtime_error(std::string("FitSensor: sensor with id = ") + std::to_string(id) + "does not exist or has no LRF");
 }
 
-bool LRModel::FitGroup(int gid)
+void LRModel::FitGroup(int gid)
 {
-    return GetGroupLRF(gid)->doFit();
+    LRF *f = GetGroupLRF(gid);
+    if (f)
+        f->doFit();
+    else 
+        throw std::runtime_error(std::string("ClearGroupFitData: group with id = ") + std::to_string(gid) + "does not exist or has no LRF");
+}
+
+void LRModel::ClearSensorFitData(int id)
+{
+    LRF *f = GetLRF(id);
+    if (f)
+        f->clearData();
+    else 
+        throw std::runtime_error(std::string("ClearSensorFitData: sensor with id = ") + std::to_string(id) + "does not exist or has no LRF");
+}
+
+void LRModel::ClearGroupFitData(int gid)
+{
+    LRF *f = GetGroupLRF(gid);
+    if (f)
+        f->clearData();
+    else 
+        throw std::runtime_error(std::string("ClearGroupFitData: group with id = ") + std::to_string(gid) + "does not exist or has no LRF");
 }
 
 void LRModel::ClearAllFitData()
