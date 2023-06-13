@@ -26,6 +26,7 @@ LRFaxial3d* LRFaxial3d::clone() const
     LRFaxial3d *copy = new LRFaxial3d(*this);
     copy->bs2r = bs2r ? new Bspline2d(*bs2r) : nullptr;
     copy->compress = compress ? compress->clone() : nullptr;
+    copy->compress_z = compress_z ? compress_z->clone() : nullptr;
     copy->bs2fit = bs2fit ? bs2fit->clone() : nullptr;
 // an example of an ugly part: need keep track of unused stuff 
     copy->bsr = nullptr;
@@ -38,7 +39,7 @@ void LRFaxial3d::SetRmin(double val)
     rmin = val;
     rmin2 = rmin*rmin;
     delete bs2r;
-    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint,zmin, zmax, nintz);
+    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
 
     Init(); // Andr: to update xmin xmax etc
 }
@@ -48,7 +49,7 @@ void LRFaxial3d::SetRmax(double val)
     rmax = val;
     rmax2 = rmax*rmax;
     delete bs2r;
-    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint,zmin, zmax, nintz);
+    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
 
     Init(); // Andr: to update xmin xmax etc
 }
@@ -57,7 +58,19 @@ void LRFaxial3d::SetCompression(Compress1d *compress)
 {
     this->compress = compress;
     delete bs2r;
-    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint,zmin, zmax, nintz);
+    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
+}
+
+double LRFaxial3d::RhoZ(double z) const
+{
+    return ( compress_z ? compress_z->Rho(z) : z );
+}
+
+void LRFaxial3d::SetCompZ(Compress1d *compress)
+{
+    this->compress_z = compress;
+    delete bs2r;
+    bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);    
 }
 
 LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
@@ -67,6 +80,8 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
     zmin = json["zmin"].number_value();
     zmax = json["zmax"].number_value();
     nintz = json["nintz"].number_value();
+    if (json["compress_z"].is_object())
+        compress_z = Compress1d::Factory(json["compress_z"]);
       
     if (json["response"]["tpspline3"].is_object()) {
         bs2r = new Bspline2d(json["response"]["tpspline3"]);
@@ -80,7 +95,9 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
         json_err = std::string("LRFaxial3D: nint or nintz is invalid or missing");
         return;
     } else {
-        bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, zmin, zmax, nintz);
+        std::cout << zmin << " , " << zmax << std::endl;
+        std::cout << RhoZ(zmin) << " , " << RhoZ(zmax) << std::endl;
+        bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
     }
 
     valid = true;
@@ -104,9 +121,10 @@ bool LRFaxial3d::inDomain(double x, double y, double z) const
 
 double LRFaxial3d::eval(double x, double y, double z) const
 {
-    return isReady() ? bs2r->Eval(Rho(x, y), z) : 0.;
+    return isReady() ? bs2r->Eval(Rho(x, y), RhoZ(z)) : 0.;
 }
 
+// ToDo: this function doesn't make sense here 
 double LRFaxial3d::evalraw(double x, double y, double z) const
 {
     return isReady() ? bs2r->Eval(x, y) : 0.;
@@ -114,12 +132,12 @@ double LRFaxial3d::evalraw(double x, double y, double z) const
 
 double LRFaxial3d::evalDrvX(double x, double y, double z) const
 {
-    return isReady() ? bs2r->EvalDrvX(Rho(x, y), z)*RhoDrvX(x, y) : 0.;
+    return isReady() ? bs2r->EvalDrvX(Rho(x, y), RhoZ(z))*RhoDrvX(x, y) : 0.;
 }
 
 double LRFaxial3d::evalDrvY(double x, double y, double z) const
 {
-    return isReady() ? bs2r->EvalDrvX(Rho(x, y), z)*RhoDrvY(x, y) : 0.;
+    return isReady() ? bs2r->EvalDrvX(Rho(x, y), RhoZ(z))*RhoDrvY(x, y) : 0.;
 }
 
 BSfit2D *LRFaxial3d::InitFit()
@@ -143,7 +161,7 @@ bool LRFaxial3d::fitData(const std::vector <LRFdata> &data)
         if ( !(inDomain(d.x, d.y, d.z) && d.good) )
             continue;
         vr.push_back(Rho(d.x, d.y));
-        vz.push_back(d.z);
+        vz.push_back(RhoZ(d.z));
         va.push_back(d.val);
     }
 
@@ -173,7 +191,7 @@ bool LRFaxial3d::addData(const std::vector <LRFdata> &data)
     for (auto d : data) {
         if ( !(inDomain(d.x, d.y, d.z) && d.good) )
             continue;
-        bs2fit->AddData(Rho(d.x, d.y), d.z, d.val);
+        bs2fit->AddData(Rho(d.x, d.y), RhoZ(d.z), d.val);
     }
     return true;
 }
@@ -263,5 +281,8 @@ void LRFaxial3d::ToJsonObject(Json_object &json) const
         json["response"] = json1;
     }
 
-    if (compress) json["compression"] = compress->GetJsonObject();
+    if (compress) 
+        json["compression"] = compress->GetJsonObject();
+    if (compress_z) 
+        json["compress_z"] = compress_z->GetJsonObject();
 }

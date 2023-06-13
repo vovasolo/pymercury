@@ -36,7 +36,7 @@ Compress2d* Compress2d::Factory(const Json &json)
 
 void DualSlopeCompress::Init()
 {
-    if (r0 < 0. || k <= 1.)
+    if (r0 < 0. || k <= 0.)
         return;
 
     a = (k+1)/(k-1);
@@ -67,7 +67,8 @@ DualSlopeCompress::DualSlopeCompress(const Json &json)
 double DualSlopeCompress::Rho(double r) const
 {
     double dr = r - r0;
-    return std::max(0., b + dr*a - sqrt(dr*dr + lam2));
+    double val = b + dr*a - sqrt(dr*dr + lam2);
+    return std::max(0., k>=1 ? val : -val);
 }
 
 double DualSlopeCompress::RhoDrv(double r) const

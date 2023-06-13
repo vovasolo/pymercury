@@ -21,13 +21,9 @@ PYBIND11_MODULE(mercury, m) {
 
     py::class_<RecLS>(m, "RecLS")
         .def(py::init<std::string &, bool>())
-/*
-   virtual bool ProcessEvent(std::vector <double> &a);
-    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat) = 0;
-    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, std::vector <double> &guess);
 
-    .def("Eval", (double (LRModel::*) (int, double, double, double)) &LRModel::Eval)
-*/
+	.def("Version", &RecLS::getVersion)
+
         .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &)) &RecLS::ProcessEvent)
         .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &, std::vector <bool> &)) &RecLS::ProcessEvent)
         .def("ProcessEvent", (bool (RecLS::*) (std::vector <double> &, std::vector <bool> &, std::vector <double> &)) &RecLS::ProcessEvent)
@@ -39,6 +35,7 @@ PYBIND11_MODULE(mercury, m) {
         .def("getDof", &RecLS::getDof)        
         .def("getRecX", &RecLS::getRecX)
         .def("getRecY", &RecLS::getRecY)
+        .def("getRecZ", &RecLS::getRecZ)
         .def("getRecE", &RecLS::getRecE)        
         .def("getRecMin", &RecLS::getRecMin)
         .def("getChi2Min", &RecLS::getChi2Min)
@@ -72,12 +69,15 @@ PYBIND11_MODULE(mercury, m) {
         .def("getSumActiveSignal", &RecLS::getSumActiveSignal)
         .def("getSumActiveLRF", &RecLS::getSumActiveLRF)
 
-        .def("setAutoE", &RecLS::setAutoE) 
+        .def("setAutoE", &RecLS::setAutoE)
+        .def("setFixedZ", &RecLS::setFixedZ)
+        .def("setFreeZ", &RecLS::setFreeZ) 
         ;
 
     py::class_<RecML>(m, "RecML")
         .def(py::init<std::string &>())
 
+        .def("Version", &RecML::getVersion)
         .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &)) &RecML::ProcessEvent)
         .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &, std::vector <bool> &)) &RecML::ProcessEvent)
         .def("ProcessEvent", (bool (RecML::*) (std::vector <double> &, std::vector <bool> &, std::vector <double> &)) &RecML::ProcessEvent)
@@ -89,6 +89,7 @@ PYBIND11_MODULE(mercury, m) {
         .def("getDof", &RecML::getDof)        
         .def("getRecX", &RecML::getRecX)
         .def("getRecY", &RecML::getRecY)
+        .def("getRecZ", &RecML::getRecZ)
         .def("getRecE", &RecML::getRecE)        
         .def("getRecMin", &RecML::getRecMin)
         .def("getChi2Min", &RecML::getChi2Min)
@@ -122,7 +123,9 @@ PYBIND11_MODULE(mercury, m) {
         .def("getSumActiveSignal", &RecML::getSumActiveSignal)
         .def("getSumActiveLRF", &RecML::getSumActiveLRF)
 
-        .def("setAutoE", &RecLS::setAutoE) 
+        .def("setAutoE", &RecML::setAutoE)
+        .def("setFixedZ", &RecML::setFixedZ)
+        .def("setFreeZ", &RecML::setFreeZ)  
         ;
 
         py::class_<ReconstructorMP>(m, "RecCoG_MP")
@@ -148,11 +151,11 @@ PYBIND11_MODULE(mercury, m) {
         .def("ProcessEvents", (void (RecLS_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &)) &RecLS_MP::ProcessEvents)
         .def("ProcessEvents", (void (RecLS_MP::*) (std::vector <std::vector <double> > &, std::vector <std::vector <bool> > &, std::vector <std::vector <double> > &)) &RecLS_MP::ProcessEvents)        
 
-
         .def("getRecStatus", &RecLS_MP::getRecStatus)
         .def("getDof", &RecLS_MP::getDof)        
         .def("getRecX", &RecLS_MP::getRecX)
         .def("getRecY", &RecLS_MP::getRecY)
+        .def("getRecZ", &RecLS_MP::getRecZ)
         .def("getRecE", &RecLS_MP::getRecE)        
         .def("getRecMin", &RecLS_MP::getRecMin)
         .def("getChi2Min", &RecLS_MP::getChi2Min)
@@ -176,7 +179,9 @@ PYBIND11_MODULE(mercury, m) {
 
         .def("setMinuitVerbosity", &RecLS_MP::setMinuitVerbosity)
 
-        .def("setAutoE", &RecLS_MP::setAutoE) 
+        .def("setAutoE", &RecLS_MP::setAutoE)
+        .def("setFixedZ", &RecLS_MP::setFixedZ)
+        .def("setFreeZ", &RecLS_MP::setFreeZ)
         ; 
 
         py::class_<RecML_MP>(m, "RecML_MP")
@@ -192,6 +197,7 @@ PYBIND11_MODULE(mercury, m) {
         .def("getDof", &RecML_MP::getDof)        
         .def("getRecX", &RecML_MP::getRecX)
         .def("getRecY", &RecML_MP::getRecY)
+        .def("getRecZ", &RecML_MP::getRecZ)
         .def("getRecE", &RecML_MP::getRecE)        
         .def("getRecMin", &RecML_MP::getRecMin)
         .def("getChi2Min", &RecML_MP::getChi2Min)
@@ -215,7 +221,9 @@ PYBIND11_MODULE(mercury, m) {
 
         .def("setMinuitVerbosity", &RecML_MP::setMinuitVerbosity)
 
-        .def("setAutoE", &RecML_MP::setAutoE) 
+        .def("setAutoE", &RecML_MP::setAutoE)
+        .def("setFixedZ", &RecML_MP::setFixedZ)
+        .def("setFreeZ", &RecML_MP::setFreeZ)
         ;
     
 }

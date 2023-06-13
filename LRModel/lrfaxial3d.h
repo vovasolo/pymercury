@@ -37,6 +37,8 @@ public:
     void SetRmin(double rmin);
     void SetRmax(double rmax);
     void SetCompression(Compress1d *compress);
+    void SetCompZ(Compress1d *compress);
+    double RhoZ(double z) const; // compression transform of Z
 
     void SetForcedZSlope(int val) {z_slope = val;}
     ProfileHist *GetHist();
@@ -53,6 +55,7 @@ private:
     int z_slope = 0;
     Bspline2d *bs2r = nullptr; 	// 2D spline
     BSfit2D *bs2fit = nullptr;     // object used in fitting
+    Compress1d *compress_z = nullptr; // optional Z compression
 };
 
 #endif // LRFAXIAL3D_H
