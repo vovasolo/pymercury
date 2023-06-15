@@ -8,6 +8,12 @@ ROOTLIBS = $(shell root-config --libs) -lMinuit2
 OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o
 OBJSLRM = compress.o lrfaxial.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
+libmercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o
+	$(CXX) -shared -o libmercury.so $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o $(ROOTLIBS) -fopenmp
+
+liblrm: $(OBJS123) $(OBJSLRM)
+	$(CXX) -shared -o liblrm.so $(OBJS123) $(OBJSLRM) -fopenmp
+
 pymercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o wraprec.o
 	$(CXX) -shared -o mercury.so $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o wraprec.o $(ROOTLIBS) -fopenmp
 
