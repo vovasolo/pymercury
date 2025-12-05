@@ -2,9 +2,16 @@ CXX = g++
 CXXFLAGS = -O2 -Wall -fPIC -std=c++11 -fopenmp
 INCLUDES = -ILRModel -Ispline123 -Ilib -I/usr/include/eigen3
 PYINCLUDES = $(shell python3 -m pybind11 --includes)
-ROOTINCLUDES = -I$(shell root-config --incdir)
-ROOTFLAGS = $(shell root-config --cflags)
-ROOTLIBS = $(shell root-config --libs) -lMinuit2
+
+#ROOTINCLUDES = -I$(shell root-config --incdir)
+#ROOTFLAGS = $(shell root-config --cflags)
+#ROOTLIBS = $(shell root-config --libs) -lMinuit2
+MINUITDIR = ../Minuit2
+ROOTINCLUDES = -I$(MINUITDIR)/inc
+ROOTLIBS = -L$(MINUITDIR)/build/lib -lMinuit2 -lMinuit2Math
+#ROOTINCLUDES = -I../Minuit2/inc
+#ROOTLIBS = ../Minuit2/build/lib/libMinuit2.a ../Minuit2/build/lib/libMinuit2Math.a
+
 OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o
 OBJSLRM = compress.o lrfaxial.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
@@ -19,6 +26,9 @@ pymercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o wraprec.o
 
 pylrm: $(OBJS123) $(OBJSLRM) wraplrm.o
 	$(CXX) -shared -o lrmodel.so $(OBJS123) $(OBJSLRM) wraplrm.o -fopenmp
+
+pyaxial: $(OBJS123) $(OBJSLRM) wrapaxial.o
+	$(CXX) -shared -o lrfaxial.so $(OBJS123) $(OBJSLRM) wrapaxial.o -fopenmp
 
 test: $(OBJS123) $(OBJSLRM) test.o 
 	$(CXX) -o test $(OBJS123) $(OBJSLRM) test.o -fopenmp
@@ -73,6 +83,9 @@ reconstructor_mp.o:
 
 wraplrm.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wraplrm.cpp
+
+wrapaxial.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wrapaxial.cpp
 
 wraprec.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) $(ROOTINCLUDES) wraprec.cpp

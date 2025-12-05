@@ -52,7 +52,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     cov_yy.resize(n_evt);		// variance in y
     cov_xy.resize(n_evt);		// covariance xy
 
-    int jmin[n_thr], jmax[n_thr];
+    std::vector<int> jmin(n_thr), jmax(n_thr);
     int chunk = n_evt/n_thr;
     for (int i=0; i<n_thr; i++) {
         jmin[i] = i*chunk;
@@ -60,10 +60,13 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
 //        std::cout << jmin[i] << ", " << jmax[i] << std::endl;
     }
     jmax[n_thr-1] = n_evt;
+    abort = false;
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
         for (int j=jmin[i]; j<jmax[i]; j++) {
+            if (abort)
+                continue;
             recs[i]->ProcessEvent(A[j], Sat[j]);
             rec_status[j] = recs[i]->getRecStatus();
             rec_x[j] = recs[i]->getRecX();
@@ -98,7 +101,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     cov_yy.resize(n_evt);		// variance in y
     cov_xy.resize(n_evt);		// covariance xy
 
-    int jmin[n_thr], jmax[n_thr];
+    std::vector<int> jmin(n_thr), jmax(n_thr);
     int chunk = n_evt/n_thr;
     for (int i=0; i<n_thr; i++) {
         jmin[i] = i*chunk;
@@ -106,10 +109,13 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
 //        std::cout << jmin[i] << ", " << jmax[i] << std::endl;
     }
     jmax[n_thr-1] = n_evt;
+    abort = false;
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
         for (int j=jmin[i]; j<jmax[i]; j++) {
+            if (abort) 
+                continue;
             recs[i]->ProcessEvent(A[j], Sat[j], Guess[j]);
             rec_status[j] = recs[i]->getRecStatus();
             rec_x[j] = recs[i]->getRecX();

@@ -1,0 +1,6 @@
+# objects
+*.o
+*.so
+
+# clangd cache
+.cache/

@@ -1,10 +1,11 @@
 #include "reconstructor.h"
 #include "lrmodel.h"
-#include "TROOT.h"
+//#include "TROOT.h"
 #include <iostream>
-#include <fstream>
+// #include <fstream>
 // #include "eiquadprog.hpp"
 #include <cmath>
+#include <vector>
 
 Reconstructor::Reconstructor(LRModel *lrm)
 {
@@ -47,7 +48,6 @@ bool Reconstructor::ProcessEvent(std::vector <double> &a, std::vector <bool> &sa
 // Check for static and dynamic passives + saturation
 void Reconstructor::checkActive()
 {
-    bool act;
     Active.clear();
     int maxid = getMaxSignalID();
     double cutoff = std::max(rec_abs_cutoff, A[maxid]*rec_rel_cutoff);
@@ -245,7 +245,7 @@ RecMinuit::RecMinuit(LRModel *lrm) : Reconstructor(lrm)
 
 // Set Minuit2 and ROOT verbosity level
     RootMinimizer->SetPrintLevel(MinuitPrintLevel);
-    gErrorIgnoreLevel = RootPrintLevel;
+//    gErrorIgnoreLevel = RootPrintLevel;
 
 //    std::cout << "w:" << fWeighted << ", e: " << fAutoE << std::endl;
 }
@@ -350,9 +350,9 @@ bool RecMinuit::ProcessEvent(std::vector <double> &a, std::vector <bool> &sat, s
         rec_min = RootMinimizer->MinValue();
 
     // Calc Hessian matrix and get status
-        double cov[ndim*ndim];
+        std::vector<double> cov(ndim*ndim);
         RootMinimizer->Hesse();
-        RootMinimizer->GetCovMatrix(cov);
+        RootMinimizer->GetCovMatrix(&cov[0]);
         cov_xx = cov[0]; // first column first row
         cov_yy = cov[ndim+1]; // second column second row
         cov_xy = cov[1];      // second column first row
