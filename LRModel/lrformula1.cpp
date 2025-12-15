@@ -238,9 +238,15 @@ bool LRFormula1::doFit()
 
     // vector with the fit parameters (a, s, c)
     Eigen::VectorXd p(3);
-    // initial guess 
-    double amax = *std::max_element(vdata.begin(), vdata.end());
-    p << amax, 1, 0;
+
+    // starting point for optimization 
+    if (a == 0.) { // make a guess
+        double amax = y.maxCoeff();
+        double sigma = sqrt((x*x*y).sum()/y.sum());
+        p << amax, sigma, 0;
+    } else {       // use current values
+        p << a, s, c; 
+    }
 
     // Wrap with numerical differentiation
     UniFunctorW functor(x, y, w, ftype);
