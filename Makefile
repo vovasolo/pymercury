@@ -13,7 +13,7 @@ ROOTLIBS = -L$(MINUITDIR)/build/lib -lMinuit2 -lMinuit2Math
 #ROOTLIBS = ../Minuit2/build/lib/libMinuit2.a ../Minuit2/build/lib/libMinuit2Math.a
 
 OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o
-OBJSLRM = compress.o lrfaxial.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
+OBJSLRM = compress.o lrfaxial.o lrformula1.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
 libmercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o
 	$(CXX) -shared -o libmercury.so $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o $(ROOTLIBS) -fopenmp
@@ -29,6 +29,9 @@ pylrm: $(OBJS123) $(OBJSLRM) wraplrm.o
 
 pyaxial: $(OBJS123) $(OBJSLRM) wrapaxial.o
 	$(CXX) -shared -o lrfaxial.so $(OBJS123) $(OBJSLRM) wrapaxial.o -fopenmp
+
+pyformula1: $(OBJS123) $(OBJSLRM) wrapformula1.o
+	$(CXX) -shared -o lrformula1.so $(OBJS123) $(OBJSLRM) wrapformula1.o -fopenmp
 
 test: $(OBJS123) $(OBJSLRM) test.o 
 	$(CXX) -o test $(OBJS123) $(OBJSLRM) test.o -fopenmp
@@ -56,6 +59,9 @@ lrf.o:
 
 lrfaxial.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrfaxial.cpp
+
+lrformula1.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrformula1.cpp
 
 lrfaxial3d.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrfaxial3d.cpp
@@ -86,6 +92,9 @@ wraplrm.o:
 
 wrapaxial.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wrapaxial.cpp
+
+wrapformula1.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wrapformula1.cpp
 
 wraprec.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) $(ROOTINCLUDES) wraprec.cpp

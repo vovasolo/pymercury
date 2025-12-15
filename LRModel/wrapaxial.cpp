@@ -9,8 +9,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(lrfaxial, m) {
     py::class_<LRFaxial>(m, "LRFaxial")
         // Constructors
-        .def(py::init<double, int>(),
-             py::arg("rmax"), py::arg("nint"))
+        .def(py::init<double, double, double, int>(),
+            py::arg("x0"), py::arg("y0"), py::arg("rmax"), py::arg("nint"))
 //        .def(py::init<const Json &>())
         .def(py::init<std::string &>())
 
