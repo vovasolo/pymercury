@@ -10,6 +10,47 @@
 #include <algorithm>
 #include <vector>
 
+#include "functor.h"
+
+// Universal functor
+struct FunctorV : Functor<double> {
+    Eigen::VectorXd x;
+    Eigen::VectorXd y;
+    VFormula *vf;
+
+    FunctorV(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, VFormula *vf_)
+        : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), vf(vf_){}
+
+    // Compute residuals: f(p) = model(p) - y
+    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
+        for (size_t i=1; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-1]);
+
+        fvec = vf->Eval(x.array()) - y.array();
+        return 0;
+    }
+};
+
+// Universal functor with weights
+struct FunctorVW : Functor<double> {
+    Eigen::VectorXd x;
+    Eigen::VectorXd y;
+    Eigen::VectorXd w;
+    VFormula *vf;
+
+    FunctorVW(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& w_, VFormula *vf_)
+        : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), w(w_), vf(vf_){}
+
+    // Compute weighted residuals: f(p) = (model(p) - y) * sqrt(w)
+    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
+        for (size_t i=1; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-1]);
+
+        fvec = (vf->Eval(x.array()) - y.array()) * sqrt(w.array());
+        return 0;
+    }
+};
+
 LRFormulaV::LRFormulaV(double x0, double y0, double rmax) :
     x0(x0), y0(y0), rmax(rmax)
 {
@@ -199,10 +240,10 @@ bool LRFormulaV::fitData(const std::vector <LRFdata> &data)
         p(i) = parvals[i];
 
     // Wrap with numerical differentiation
-    UniFunctorV functor(x, y, vf);
+    FunctorV functor(x, y, vf);
 
-    Eigen::NumericalDiff<UniFunctorV> numDiff(functor);
-    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<UniFunctorV>> lm(numDiff);
+    Eigen::NumericalDiff<FunctorV> numDiff(functor);
+    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorV>> lm(numDiff);
 
     // Run LM optimization
     lm.parameters.maxfev = 200;   // max iterations
@@ -261,10 +302,10 @@ bool LRFormulaV::doFit()
         p(i) = parvals[i];
 
     // Wrap with numerical differentiation
-    UniFunctorWV functor(x, y, w, vf);
+    FunctorVW functor(x, y, w, vf);
 
-    Eigen::NumericalDiff<UniFunctorWV> numDiff(functor);
-    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<UniFunctorWV>> lm(numDiff);
+    Eigen::NumericalDiff<FunctorVW> numDiff(functor);
+    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorVW>> lm(numDiff);
 
     // Run LM optimization
     lm.parameters.maxfev = 200;   // max iterations

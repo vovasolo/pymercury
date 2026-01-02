@@ -89,6 +89,16 @@ VarType VFormula::Eval(VarType x)
     return Eval();
 }
 
+VarType VFormula::Eval(VarType x, VarType y)
+{
+    Var[0] = x;
+    Var[1] = y;
+#ifdef VECTOR_VARS
+    veclen = x.size();
+#endif 
+    return Eval();
+}
+
 VarType VFormula::Eval()
 {
     size_t codelen = Command.size();

@@ -15,65 +15,6 @@
 
 #include "vformula.h"
 
-// Define a functor for LM optimization
-// this particualar structure is needed by LM optimizer
-// plus some additional stuff required by numerical differentiation module
-template<typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
-struct FunctorV {
-    typedef _Scalar Scalar;
-    enum {
-        InputsAtCompileTime = NX,
-        ValuesAtCompileTime = NY
-    };
-    typedef Eigen::Matrix<Scalar, NX, 1> InputType;
-    typedef Eigen::Matrix<Scalar, NY, 1> ValueType;
-    typedef Eigen::Matrix<Scalar, NY, NX> JacobianType;
-
-    int m_inputs, m_values;
-    FunctorV(int inputs, int values) : m_inputs(inputs), m_values(values) {}
-    int inputs() const { return m_inputs; }
-    int values() const { return m_values; }
-};
-
-// Universal functor
-struct UniFunctorV : FunctorV<double> {
-    Eigen::VectorXd x;
-    Eigen::VectorXd y;
-    VFormula *vf;
-
-    UniFunctorV(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, VFormula *vf_)
-        : FunctorV<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), vf(vf_){}
-
-    // Compute residuals: f(p) = model(p) - y
-    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
-
-        fvec = vf->Eval(x.array()) - y.array();
-        return 0;
-    }
-};
-
-// Universal functor with weights
-struct UniFunctorWV : FunctorV<double> {
-    Eigen::VectorXd x;
-    Eigen::VectorXd y;
-    Eigen::VectorXd w;
-    VFormula *vf;
-
-    UniFunctorWV(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& w_, VFormula *vf_)
-        : FunctorV<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), w(w_), vf(vf_){}
-
-    // Compute weighted residuals: f(p) = (model(p) - y) * sqrt(w)
-    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
-
-        fvec = (vf->Eval(x.array()) - y.array()) * sqrt(w.array());
-        return 0;
-    }
-};
-
 class LRFormulaV : public LRF
 {
 public:

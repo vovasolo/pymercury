@@ -1,3 +1,6 @@
+#ifndef VFORMULA_H
+#define VFORMULA_H
+
 #include <cstddef>
 #include <stack>
 #include <vector>
@@ -203,6 +206,7 @@ public:
     bool Validate();
     VarType Eval();
     VarType Eval(VarType x);
+    VarType Eval(VarType x, VarType y);
 
     std::string GetErrorString() {return ErrorString;}
 
@@ -225,4 +229,4 @@ public:
     size_t failpos; // position in the code at which validation failed
 };
 
-
+#endif // VFORMULA_H

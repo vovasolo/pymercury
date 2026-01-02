@@ -13,7 +13,7 @@ ROOTLIBS = -L$(MINUITDIR)/build/lib -lMinuit2 -lMinuit2Math
 #ROOTLIBS = ../Minuit2/build/lib/libMinuit2.a ../Minuit2/build/lib/libMinuit2Math.a
 
 OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o vformula.o
-OBJSLRM = compress.o lrfaxial.o lrformula1.o lrformulav.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
+OBJSLRM = compress.o lrfaxial.o lrformula1.o lrformulav.o lrformulaxy.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
 libmercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o
 	$(CXX) -shared -o libmercury.so $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o $(ROOTLIBS) -fopenmp
@@ -35,6 +35,9 @@ pyformula1: $(OBJS123) $(OBJSLRM) wrapformula1.o
 
 pyformulav: $(OBJS123) $(OBJSLRM) wrapformulav.o
 	$(CXX) -shared -o lrformulav.so $(OBJS123) $(OBJSLRM) wrapformulav.o -fopenmp
+
+pyformulaxy: $(OBJS123) $(OBJSLRM) wrapformulaxy.o
+	$(CXX) -shared -o lrformulaxy.so $(OBJS123) $(OBJSLRM) wrapformulaxy.o -fopenmp
 
 test: $(OBJS123) $(OBJSLRM) test.o 
 	$(CXX) -o test $(OBJS123) $(OBJSLRM) test.o -fopenmp
@@ -72,6 +75,9 @@ lrformula1.o:
 lrformulav.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrformulav.cpp
 
+lrformulaxy.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrformulaxy.cpp
+
 lrfaxial3d.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) LRModel/lrfaxial3d.cpp
 
@@ -108,6 +114,9 @@ wrapformula1.o:
 wrapformulav.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wrapformulav.cpp
 
+wrapformulaxy.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) LRModel/wrapformulaxy.cpp
+
 wraprec.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) $(ROOTINCLUDES) wraprec.cpp
 
@@ -116,4 +125,5 @@ test.o:
 	
 clean:
 	rm -f *.o *.so
+
 
