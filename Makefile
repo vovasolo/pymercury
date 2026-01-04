@@ -12,7 +12,7 @@ ROOTLIBS = -L$(MINUITDIR)/build/lib -lMinuit2 -lMinuit2Math
 #ROOTINCLUDES = -I../Minuit2/inc
 #ROOTLIBS = ../Minuit2/build/lib/libMinuit2.a ../Minuit2/build/lib/libMinuit2Math.a
 
-OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o vformula.o
+OBJS123 = bsfit123.o bspline123d.o json11.o profileHist.o wformula.o
 OBJSLRM = compress.o lrfaxial.o lrformula1.o lrformulav.o lrformulaxy.o lrfaxial3d.o lrfxy.o lrfxyz.o lrfcomp.o lrf.o lrfio.o lrmodel.o transform.o
 
 libmercury: $(OBJS123) $(OBJSLRM) reconstructor.o reconstructor_mp.o
@@ -45,8 +45,8 @@ test: $(OBJS123) $(OBJSLRM) test.o
 json11.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) lib/json11.cpp
 
-vformula.o:
-	$(CXX) -c $(CXXFLAGS) $(INCLUDES) lib/vformula.cpp
+wformula.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) lib/wformula.cpp
 	
 profileHist.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) spline123/profileHist.cpp

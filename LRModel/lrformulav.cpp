@@ -1,5 +1,5 @@
 #include "lrformulav.h"
-#include "Eigen/src/Core/Matrix.h"
+//#include "Eigen/src/Core/Matrix.h"
 #include "json11.hpp"
 #include "profileHist.h"
 
@@ -16,9 +16,9 @@
 struct FunctorV : Functor<double> {
     Eigen::VectorXd x;
     Eigen::VectorXd y;
-    VFormula *vf;
+    WFormula *vf;
 
-    FunctorV(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, VFormula *vf_)
+    FunctorV(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, WFormula *vf_)
         : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), vf(vf_){}
 
     // Compute residuals: f(p) = model(p) - y
@@ -36,9 +36,9 @@ struct FunctorVW : Functor<double> {
     Eigen::VectorXd x;
     Eigen::VectorXd y;
     Eigen::VectorXd w;
-    VFormula *vf;
+    WFormula *vf;
 
-    FunctorVW(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& w_, VFormula *vf_)
+    FunctorVW(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& w_, WFormula *vf_)
         : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), w(w_), vf(vf_){}
 
     // Compute weighted residuals: f(p) = (model(p) - y) * sqrt(w)
@@ -94,7 +94,7 @@ LRFormulaV::LRFormulaV(const Json &json)
 
     Init();
 
-// get VFormula expression and parameters
+// get WFormula expression and parameters
 
     parnames.clear();
     parvals.clear();
@@ -119,7 +119,7 @@ LRFormulaV::LRFormulaV(std::string &json_str) : LRFormulaV(Json::parse(json_str,
 std::string LRFormulaV::InitVF()
 {
     delete vf;
-    vf = new VFormula();
+    vf = new WFormula();
 //    std::cout << "InitVF\n";
     for (size_t i = 0; i<parnames.size(); i++) {
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;

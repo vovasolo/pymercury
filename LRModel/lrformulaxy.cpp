@@ -12,9 +12,9 @@ struct FunctorXY : Functor<double> {
     Eigen::VectorXd x;
     Eigen::VectorXd y;
     Eigen::VectorXd a;
-    VFormula *vf;
+    WFormula *vf;
 
-    FunctorXY(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& a_, VFormula *vf_)
+    FunctorXY(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& a_, WFormula *vf_)
         : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), a(a_), vf(vf_){}
 
     // Compute residuals: f(p) = model(p) - a
@@ -33,10 +33,10 @@ struct FunctorXYW : Functor<double> {
     Eigen::VectorXd y;
     Eigen::VectorXd a;
     Eigen::VectorXd w;
-    VFormula *vf;
+    WFormula *vf;
 
     FunctorXYW(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& a_,
-        const Eigen::VectorXd& w_, VFormula *vf_)
+        const Eigen::VectorXd& w_, WFormula *vf_)
         : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), a(a_), w(w_), vf(vf_){}
 
     // Compute weighted residuals: f(p) = (model(p) - a) * sqrt(w)
@@ -81,7 +81,7 @@ LRFormulaXY::LRFormulaXY(const Json &json)
     if (xmax <= xmin || ymax<=ymin)
         return;
     
-// get VFormula expression and parameters
+// get WFormula expression and parameters
 
     parnames.clear();
     parvals.clear();
@@ -104,7 +104,7 @@ LRFormulaXY::LRFormulaXY(const Json &json)
 std::string LRFormulaXY::InitVF()
 {
     delete vf;
-    vf = new VFormula();
+    vf = new WFormula();
 //    std::cout << "InitVF\n";
     for (size_t i = 0; i<parnames.size(); i++) {
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;

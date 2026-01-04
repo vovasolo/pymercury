@@ -9,7 +9,7 @@
 #include <unsupported/Eigen/NonLinearOptimization>
 #include <unsupported/Eigen/NumericalDiff>
 
-#include "vformula.h"
+#include "wformula.h"
 
 class LRFormulaXY : public LRF
 {
@@ -73,7 +73,7 @@ int nbinsx = 20;
 int nbinsy = 20;
 
 // VFormula
-VFormula *vf = nullptr;
+WFormula *vf = nullptr;
 std::string expression = std::string("");   // expression to parse
 // vectors because parameters passed in a vector to functors
 std::vector<std::string> parnames;             // parameter names

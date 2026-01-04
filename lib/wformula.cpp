@@ -1,4 +1,4 @@
-#include "vformula.h"
+#include "wformula.h"
 #include <algorithm>
 //#include <iostream>
 #include <cstddef>
@@ -8,48 +8,48 @@
 #include <stdexcept>
 //#include <chrono>
 
-VFormula::VFormula()
+WFormula::WFormula()
 {
-    AddOperation("+", &VFormula::Add, "ADD", 5);
-    AddOperation("-", &VFormula::Sub, "SUB", 5);
-    AddOperation("*", &VFormula::Mul, "MUL", 4);
-    AddOperation("/", &VFormula::Div, "DIV", 4);
-    AddOperation("^", &VFormula::Pow, "POW", 3);
+    AddOperation("+", &WFormula::Add, "ADD", 5);
+    AddOperation("-", &WFormula::Sub, "SUB", 5);
+    AddOperation("*", &WFormula::Mul, "MUL", 4);
+    AddOperation("/", &WFormula::Div, "DIV", 4);
+    AddOperation("^", &WFormula::Pow, "POW", 3);
 // unary minus and plus  
-    neg = AddOperation("--", &VFormula::Neg, "NEG", 2, 1);
-    nop = AddOperation("++", &VFormula::Nop, "NOP", 2, 1);
+    neg = AddOperation("--", &WFormula::Neg, "NEG", 2, 1);
+    nop = AddOperation("++", &WFormula::Nop, "NOP", 2, 1);
     
-    pow2 = AddFunction("pow2", &VFormula::Pow2, "POW2");
-    pow3 = AddFunction("pow3", &VFormula::Pow3, "POW3");
+    pow2 = AddFunction("pow2", &WFormula::Pow2, "POW2");
+    pow3 = AddFunction("pow3", &WFormula::Pow3, "POW3");
 
-    AddFunction("pow", &VFormula::Pow, "POW", 2);
-    AddFunction("abs", &VFormula::Abs, "ABS");
-    AddFunction("sqrt", &VFormula::Sqrt, "SQRT");
-    AddFunction("exp", &VFormula::Exp, "EXP");
-    AddFunction("log", &VFormula::Log, "LOG");    
-    AddFunction("sin", &VFormula::Sin, "SIN");
-    AddFunction("cos", &VFormula::Cos, "COS");
-    AddFunction("tan", &VFormula::Tan, "TAN");
-    AddFunction("asin", &VFormula::Asin, "ASIN");
-    AddFunction("acos", &VFormula::Acos, "ACOS");
-    AddFunction("atan", &VFormula::Atan, "ATAN");
-//    AddFunction("atan2", &VFormula::Atan2, "ATAN2", 2);
+    AddFunction("pow", &WFormula::Pow, "POW", 2);
+    AddFunction("abs", &WFormula::Abs, "ABS");
+    AddFunction("sqrt", &WFormula::Sqrt, "SQRT");
+    AddFunction("exp", &WFormula::Exp, "EXP");
+    AddFunction("log", &WFormula::Log, "LOG");    
+    AddFunction("sin", &WFormula::Sin, "SIN");
+    AddFunction("cos", &WFormula::Cos, "COS");
+    AddFunction("tan", &WFormula::Tan, "TAN");
+    AddFunction("asin", &WFormula::Asin, "ASIN");
+    AddFunction("acos", &WFormula::Acos, "ACOS");
+    AddFunction("atan", &WFormula::Atan, "ATAN");
+//    AddFunction("atan2", &WFormula::Atan2, "ATAN2", 2);
 
-    AddFunction("sinh", &VFormula::Sinh, "SINH");
-    AddFunction("cosh", &VFormula::Cosh, "COSH");
-    AddFunction("tanh", &VFormula::Tanh, "TANH");
-    AddFunction("asinh", &VFormula::Asinh, "ASINH");
-    AddFunction("acosh", &VFormula::Acosh, "ACOSH");
-    AddFunction("atanh", &VFormula::Atanh, "ATANH");
+    AddFunction("sinh", &WFormula::Sinh, "SINH");
+    AddFunction("cosh", &WFormula::Cosh, "COSH");
+    AddFunction("tanh", &WFormula::Tanh, "TANH");
+    AddFunction("asinh", &WFormula::Asinh, "ASINH");
+    AddFunction("acosh", &WFormula::Acosh, "ACOSH");
+    AddFunction("atanh", &WFormula::Atanh, "ATANH");
 
-//    AddFunction("int", &VFormula::Int, "INT");
-//    AddFunction("frac", &VFormula::Frac, "FRAC");
+//    AddFunction("int", &WFormula::Int, "INT");
+//    AddFunction("frac", &WFormula::Frac, "FRAC");
 
-    AddFunction("max", &VFormula::Max, "MAX", 2);
-    AddFunction("min", &VFormula::Min, "MIN", 2);
+    AddFunction("max", &WFormula::Max, "MAX", 2);
+    AddFunction("min", &WFormula::Min, "MIN", 2);
 
-//    AddFunction("gaus", &VFormula::Gaus, "GAUS", 3);
-//    AddFunction("pol2", &VFormula::Pol2, "POL2", 4);
+//    AddFunction("gaus", &WFormula::Gaus, "GAUS", 3);
+//    AddFunction("pol2", &WFormula::Pol2, "POL2", 4);
 
     AddConstant("pi", M_PI);
 
@@ -58,7 +58,7 @@ VFormula::VFormula()
 //    AddVariable("z", 0.);
 }
 /*
-void VFormula::Gaus()
+void WFormula::Gaus()
 {
     double sigma = Stack.top(); 
     Stack.pop();
@@ -68,7 +68,7 @@ void VFormula::Gaus()
     Stack.top() = 1/(sigma*sqrt(M_PI*2))*exp(-0.5*t*t);
 }
 
-void VFormula::Pol2()
+void WFormula::Pol2()
 {
     double a0 = Stack.top(); 
     Stack.pop();
@@ -80,7 +80,7 @@ void VFormula::Pol2()
     Stack.top() = (a2*t+a1)*t+a0;
 }
 */
-VarType VFormula::Eval(VarType x)
+VarType WFormula::Eval(VarType x)
 {
     Var[0] = x;
 #ifdef VECTOR_VARS
@@ -89,7 +89,7 @@ VarType VFormula::Eval(VarType x)
     return Eval();
 }
 
-VarType VFormula::Eval(VarType x, VarType y)
+VarType WFormula::Eval(VarType x, VarType y)
 {
     Var[0] = x;
     Var[1] = y;
@@ -99,7 +99,7 @@ VarType VFormula::Eval(VarType x, VarType y)
     return Eval();
 }
 
-VarType VFormula::Eval()
+VarType WFormula::Eval()
 {
     size_t codelen = Command.size();
     for (size_t i=0; i<codelen; i++) {
@@ -137,14 +137,14 @@ VarType VFormula::Eval()
     //throw std::runtime_error(std::string("Eval: Unknown command ") + std::to_string(cmd));
 }
 
-void VFormula::VFail(int pos, std::string msg)
+void WFormula::VFail(int pos, std::string msg)
 {
     valid = false;
     failpos = pos;
     ErrorString = msg;
 }
 
-bool VFormula::Validate()
+bool WFormula::Validate()
 {
     valid = true;
     size_t codelen = Command.size();
@@ -192,7 +192,7 @@ bool VFormula::Validate()
 
 // parses provided expression
 // returns 1024 on success or first error position on failure
-int VFormula::ParseExpr(std::string expr)
+int WFormula::ParseExpr(std::string expr)
 {
     Expr = expr;
     TokPos = 0;
@@ -204,7 +204,7 @@ int VFormula::ParseExpr(std::string expr)
     return ShuntingYard() ? 1024 : TokPos;
 }
 
-std::vector<std::string> VFormula::GetPrg()
+std::vector<std::string> WFormula::GetPrg()
 {
     char buf[32];
     std::vector<std::string> out;
@@ -235,7 +235,7 @@ std::vector<std::string> VFormula::GetPrg()
     return out;
 }
 
-std::vector<std::string> VFormula::GetConstMap()
+std::vector<std::string> WFormula::GetConstMap()
 {
     std::vector<std::string> out;
 
@@ -247,7 +247,7 @@ std::vector<std::string> VFormula::GetConstMap()
     return out;      
 }
 
-std::vector<std::string> VFormula::GetVarMap()
+std::vector<std::string> WFormula::GetVarMap()
 {
     std::vector<std::string> out;
 
@@ -256,7 +256,7 @@ std::vector<std::string> VFormula::GetVarMap()
     return out;     
 }
 
-std::vector<std::string> VFormula::GetOperMap()
+std::vector<std::string> WFormula::GetOperMap()
 {
     std::vector<std::string> out;
 
@@ -265,7 +265,7 @@ std::vector<std::string> VFormula::GetOperMap()
     return out;
 }
 
-std::vector<std::string> VFormula::GetFuncMap()
+std::vector<std::string> WFormula::GetFuncMap()
 {
     std::vector<std::string> out;
 
@@ -274,7 +274,7 @@ std::vector<std::string> VFormula::GetFuncMap()
     return out;
 }
 
-Token VFormula::GetNextToken()
+Token WFormula::GetNextToken()
 {
 // skip spaces    
     while (TokPos < Expr.size() && Expr[TokPos] == ' ')
@@ -359,7 +359,7 @@ Token VFormula::GetNextToken()
     return Token(TokError, "Unknown character or character combination");
 }
 
-bool VFormula::ShuntingYard()
+bool WFormula::ShuntingYard()
 {
 // we'll track parentheses level
 // it must never get negative and return to zero in the end
@@ -477,7 +477,7 @@ bool VFormula::ShuntingYard()
     return true;
 }
 
-bool VFormula::CheckSyntax(Token token)
+bool WFormula::CheckSyntax(Token token)
 {
     TokenType cur = token.type;
     TokenType last = LastToken.type;
@@ -498,7 +498,7 @@ bool VFormula::CheckSyntax(Token token)
     return true;
 }
 
-bool VFormula::FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr)
+bool WFormula::FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr)
 {
     std::vector <std::string> :: iterator itr;
 
@@ -510,7 +510,7 @@ bool VFormula::FindSymbol(std::vector <std::string> &namevec, std::string symbol
     return true;
 }
 
-size_t VFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args)
+size_t WFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, int rank, int args)
 {
     OperName.push_back(name);
     OperMnem.push_back(mnem);
@@ -520,7 +520,7 @@ size_t VFormula::AddOperation(std::string name, FuncPtr ptr, std::string mnem, i
     return Oper.size()-1;
 }
 
-size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args) 
+size_t WFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, int args) 
 {
     FuncName.push_back(name);
     FuncMnem.push_back(mnem);
@@ -533,7 +533,7 @@ size_t VFormula::AddFunction(std::string name, FuncPtr ptr, std::string mnem, in
 //  * named - these are reusable; they either come preset like pi or created by user via AddConstant()
 //  * auto - reset each time the parser runs; used to store the numbers from the formula
 //  ConstName.size() gives the address of the first auto constant
-size_t VFormula::AddConstant(std::string name, double val)
+size_t WFormula::AddConstant(std::string name, double val)
 {
     size_t addr;
     if (FindSymbol(ConstName, name, &addr)) { // if the constant with this name already exists - update it
@@ -546,7 +546,7 @@ size_t VFormula::AddConstant(std::string name, double val)
     return Const.size()-1;
 }
 
-size_t VFormula::AddAutoConstant(double val)
+size_t WFormula::AddAutoConstant(double val)
 {
 
     std::vector <double> :: iterator itr = std::find(Const.begin() + ConstName.size(), Const.end(), val);
@@ -559,12 +559,12 @@ size_t VFormula::AddAutoConstant(double val)
 }
 
 // remove all automatically generated (i.e. nameless) constants
-void VFormula::PruneConstants()
+void WFormula::PruneConstants()
 {
     Const.resize(ConstName.size());
 }
 
-size_t VFormula::AddVariable(std::string name) 
+size_t WFormula::AddVariable(std::string name) 
 {
 // if the variable with this name already exists - return its address   
     size_t addr;
@@ -578,27 +578,27 @@ size_t VFormula::AddVariable(std::string name)
     return Var.size()-1;
 }
 
-double VFormula::GetConstant(std::string name)
+double WFormula::GetConstant(std::string name)
 {
     size_t addr;
     return FindSymbol(ConstName, name, &addr) ? Const[addr] : nan("");
 }
 
-double VFormula::GetConstant(size_t addr)
+double WFormula::GetConstant(size_t addr)
 {
     if (addr<0 || addr>=Const.size())
         return nan("");
     return Const[addr];    
 }
 
-VarType VFormula::GetVariable(std::string name)
+VarType WFormula::GetVariable(std::string name)
 {
     size_t addr;
     return FindSymbol(VarName, name, &addr) ? Var[addr] : VarType(0);
 //    return FindSymbol(VarName, name, &addr) ? Var[addr] : nan("");   
 }
 
-bool VFormula::SetConstant(std::string name, double val)
+bool WFormula::SetConstant(std::string name, double val)
 {
     size_t addr;
     bool status = FindSymbol(ConstName, name, &addr);
@@ -607,7 +607,7 @@ bool VFormula::SetConstant(std::string name, double val)
     return status;     
 }
 
-bool VFormula::SetConstant(size_t addr, double val)
+bool WFormula::SetConstant(size_t addr, double val)
 {
     if (addr<0 || addr>=Const.size())
         return false;
@@ -615,7 +615,7 @@ bool VFormula::SetConstant(size_t addr, double val)
     return true;     
 }
 
-bool VFormula::SetVariable(std::string name, VarType val)
+bool WFormula::SetVariable(std::string name, VarType val)
 {
     size_t addr;
     bool status = FindSymbol(VarName, name, &addr);

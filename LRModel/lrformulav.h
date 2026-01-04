@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-#include "vformula.h"
+#include "wformula.h"
 
 class LRFormulaV : public LRF
 {
@@ -96,7 +96,7 @@ protected:
     int nbins = 20;
 
 // VFormula
-    VFormula *vf = nullptr;
+    WFormula *vf = nullptr;
     std::string expression = std::string("");   // expression to parse
 // vectors because parameters passed in a vector to functors
     std::vector<std::string> parnames;             // parameter names

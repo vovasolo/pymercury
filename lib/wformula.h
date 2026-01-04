@@ -1,5 +1,5 @@
-#ifndef VFORMULA_H
-#define VFORMULA_H
+#ifndef WFORMULA_H
+#define WFORMULA_H
 
 #include <cstddef>
 #include <stack>
@@ -87,10 +87,10 @@ struct assm {
     std::string val;
 };
 
-class VFormula
+class WFormula
 {
 public: 
-    typedef void (VFormula::*FuncPtr)();
+    typedef void (WFormula::*FuncPtr)();
 
     enum CmdType {
         CmdNop = 0,
@@ -171,8 +171,8 @@ public:
     std::vector <int> OperArgs;  // number of arguments to take, position corresponds to position in Oper
     std::stack <Token> OpStack;  // parser stack
 
-    VFormula();
-    virtual ~VFormula() {;}
+    WFormula();
+    ~WFormula() {;}
 
     bool FindSymbol(std::vector <std::string> &namevec, std::string symbol, size_t *addr);
 
@@ -229,4 +229,4 @@ public:
     size_t failpos; // position in the code at which validation failed
 };
 
-#endif // VFORMULA_H
+#endif // WFORMULA_H
