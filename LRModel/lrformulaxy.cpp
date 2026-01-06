@@ -8,6 +8,8 @@
 #include <algorithm>
 
 // Universal functor
+// 3 - number of fixed constants in vf
+// ToDo: calculate it automatically (probably add this to WFormula)
 struct FunctorXY : Functor<double> {
     Eigen::VectorXd x;
     Eigen::VectorXd y;
@@ -15,12 +17,12 @@ struct FunctorXY : Functor<double> {
     WFormula *vf;
 
     FunctorXY(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& a_, WFormula *vf_)
-        : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), a(a_), vf(vf_){}
+        : Functor<double>(vf_->GetConstCount()-3, x_.size()), x(x_), y(y_), a(a_), vf(vf_){}
 
     // Compute residuals: f(p) = model(p) - a
     int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
+        for (size_t i=3; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-3]);
 
         fvec = vf->Eval(x.array(), y.array()) - a.array();
         return 0;
@@ -41,8 +43,8 @@ struct FunctorXYW : Functor<double> {
 
     // Compute weighted residuals: f(p) = (model(p) - a) * sqrt(w)
     int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
+        for (size_t i=3; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-3]);
 
         fvec = (vf->Eval(x.array(), y.array()) - a.array()) * sqrt(w.array());
         return 0;
@@ -105,6 +107,8 @@ std::string LRFormulaXY::InitVF()
 {
     delete vf;
     vf = new WFormula();
+    vf -> AddConstant("x0", x0);
+    vf -> AddConstant("y0", y0);
 //    std::cout << "InitVF\n";
     for (size_t i = 0; i<parnames.size(); i++) {
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;
@@ -247,10 +251,13 @@ bool LRFormulaXY::doFit()
     // extract the accumulated binned data from the profile histogram
         for (int ix=0; ix<nbinsx; ix++)
           for (int iy=0; iy<nbinsy; iy++) {
+            double w = h1->GetBinEntries(ix, iy);
+            if (w == 0.)
+                continue;
             vx.push_back(h1->GetBinCenterX(ix));
             vy.push_back(h1->GetBinCenterY(iy));
             va.push_back(h1->GetBinMean(ix, iy));
-            vw.push_back(h1->GetBinEntries(ix, iy));
+            vw.push_back(w);
         }
 
     int nbins = nbinsx * nbinsy;
