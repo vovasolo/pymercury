@@ -81,6 +81,18 @@ protected:
     // vectors because parameters passed in a vector to functors
     std::vector<std::string> parnames;             // parameter names
     std::vector<double> parvals;                   // parameter values
+
+// Minimizer parameters
+    int maxfev = 200;   // max iterations
+    double ftol = 1e-7;
+    double xtol = 1e-7;
+
+public: 
+    void SetMaxFEV(int val) {maxfev = val;}
+    void SetFtol(int val) {ftol = val;}
+    void SetXtol(int val) {xtol = val;}
 };
+
+
 
 #endif // LRFORMULAXY_H

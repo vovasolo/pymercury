@@ -191,39 +191,39 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
         va.push_back(d.val);
     }
 
-     //  map std::vectors to ArrayXd objects
- // caveat: the data memory is shared between two objects!
- Eigen::Map<Eigen::ArrayXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
- Eigen::Map<Eigen::ArrayXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
- Eigen::Map<Eigen::ArrayXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
+    //  map std::vectors to ArrayXd objects
+    // caveat: the data memory is shared between two objects!
+    Eigen::Map<Eigen::ArrayXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
+    Eigen::Map<Eigen::ArrayXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
+    Eigen::Map<Eigen::ArrayXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
 
-// use current parameter set as initial guess
- Eigen::VectorXd p(parvals.size());
- for (size_t i=0; i<parvals.size(); i++)
-     p(i) = parvals[i];
+    // use current parameter set as initial guess
+    Eigen::VectorXd p(parvals.size());
+    for (size_t i=0; i<parvals.size(); i++)
+        p(i) = parvals[i];
 
- // Wrap with numerical differentiation
- FunctorXY functor(x, y, a, vf);
+    // Wrap with numerical differentiation
+    FunctorXY functor(x, y, a, vf);
 
- Eigen::NumericalDiff<FunctorXY> numDiff(functor);
- Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXY>> lm(numDiff);
+    Eigen::NumericalDiff<FunctorXY> numDiff(functor);
+    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXY>> lm(numDiff);
 
- // Run LM optimization
- lm.parameters.maxfev = 200;   // max iterations
- lm.parameters.ftol = 1e-7;
- lm.parameters.xtol = 1e-7;
+    // Run LM optimization
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
- auto status = lm.minimize(p);
- if (status != 1 && status != 2 && status != 3) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-     throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
-     return false;
- }
+    auto status = lm.minimize(p);
+    if (status != 1 && status != 2 && status != 3) {
+        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
+        return false;
+    }
 
- for (size_t i=0; i<parvals.size(); i++)
-     parvals[i] = p(i);
+    for (size_t i=0; i<parvals.size(); i++)
+        parvals[i] = p(i);
 
- return true;
+    return true;
 }
 
 bool LRFormulaXY::addData(const std::vector <LRFdata> &data)
@@ -278,14 +278,14 @@ bool LRFormulaXY::doFit()
     Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXYW>> lm(numDiff);
 
     // Run LM optimization
-    lm.parameters.maxfev = 200;   // max iterations
-    lm.parameters.ftol = 1e-7;
-    lm.parameters.xtol = 1e-7;
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
     if (status != 1 && status != 2 && status != 3) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
+        error_msg = std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
         return false;
     }
 
