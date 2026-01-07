@@ -3,6 +3,7 @@
 #include "profileHist.h"
 
 #include "functor.h"
+#include "wformula.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -61,6 +62,7 @@ LRFormulaXY::LRFormulaXY(double xmin, double xmax, double ymin, double ymax)
 LRFormulaXY* LRFormulaXY::clone() const 
 { 
     LRFormulaXY *copy = new LRFormulaXY(*this);
+    copy->vf = vf ? new WFormula(*vf) : nullptr;
     return copy;
 }
 
@@ -82,6 +84,11 @@ LRFormulaXY::LRFormulaXY(const Json &json)
     ymax = json["ymax"].number_value();
     if (xmax <= xmin || ymax<=ymin)
         return;
+    Init();
+
+// x0 or y0 key not present in JSON object defaults to 0
+    x0 = json["x0"].number_value();
+    y0 = json["y0"].number_value();
     
 // get WFormula expression and parameters
 
@@ -114,7 +121,8 @@ std::string LRFormulaXY::InitVF()
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;
         vf->AddConstant(parnames[i], parvals[i]);
     }
-    
+
+    vf->AddVariable("x");
     vf->AddVariable("y");
 
     int errpos = vf->ParseExpr(expression);
@@ -302,6 +310,8 @@ void LRFormulaXY::ToJsonObject(Json_object &json) const
     json["xmax"] = xmax;
     json["ymin"] = ymin;
     json["ymax"] = ymax;
+    json["x0"] = x0;
+    json["y0"] = y0;
 
     json["expression"] = expression;
     json["parnames"] = parnames;

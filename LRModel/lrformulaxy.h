@@ -93,6 +93,4 @@ public:
     void SetXtol(int val) {xtol = val;}
 };
 
-
-
 #endif // LRFORMULAXY_H

@@ -60,6 +60,7 @@ LRFormulaV::LRFormulaV(double x0, double y0, double rmax) :
 LRFormulaV* LRFormulaV::clone() const 
 { 
     LRFormulaV *copy = new LRFormulaV(*this);
+    copy->vf = vf ? new WFormula(*vf) : nullptr;
     return copy;
 }
 
@@ -125,7 +126,8 @@ std::string LRFormulaV::InitVF()
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;
         vf->AddConstant(parnames[i], parvals[i]);
     }
-//    vf->AddConstant("qqq", 15.);
+
+    vf->AddVariable("r");
 
     int errpos = vf->ParseExpr(expression);
     if (errpos != 1024)
