@@ -248,12 +248,13 @@ bool LRFormulaV::fitData(const std::vector <LRFdata> &data)
     Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorV>> lm(numDiff);
 
     // Run LM optimization
-    lm.parameters.maxfev = 200;   // max iterations
-    lm.parameters.ftol = 1e-7;
-    lm.parameters.xtol = 1e-7;
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
-    if (status != 1 && status != 2 && status != 3) {
+    fit_status = status;
+    if (status < 1 || status > 3) {
 //        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
         throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
         return false;
@@ -310,12 +311,13 @@ bool LRFormulaV::doFit()
     Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorVW>> lm(numDiff);
 
     // Run LM optimization
-    lm.parameters.maxfev = 200;   // max iterations
-    lm.parameters.ftol = 1e-7;
-    lm.parameters.xtol = 1e-7;
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
-    if (status != 1 && status != 2 && status != 3) {
+    fit_status = status;
+    if (status < 1 || status > 3) {
 //        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
         throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
         return false;

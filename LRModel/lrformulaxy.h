@@ -84,8 +84,8 @@ protected:
 
 // Minimizer parameters
     int maxfev = 200;   // max iterations
-    double ftol = 1e-7;
-    double xtol = 1e-7;
+    double ftol = 1e-5;
+    double xtol = 1e-5;
 
 public: 
     void SetMaxFEV(int val) {maxfev = val;}

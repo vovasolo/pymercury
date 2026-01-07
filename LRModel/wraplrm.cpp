@@ -115,6 +115,7 @@ PYBIND11_MODULE(lrmodel, m) {
         .def("ClearSensorFitData", &LRModel::ClearSensorFitData)
         .def("ClearGroupFitData", &LRModel::ClearGroupFitData)
         .def("ClearAllFitData", &LRModel::ClearAllFitData)
+        .def("GetFitStatus", &LRModel::GetFitStatus)
 
 // Sum of LRFs (used in light collection correction)
         .def("GetLRFSum", 
@@ -169,6 +170,7 @@ PYBIND11_MODULE(lrmodel, m) {
 
 // reporting 
         .def("GetLRFError", &LRModel::GetLRFError)
+        .def("GetJSONError", &LRModel::GetJSONError)
         .def("GetError", &LRModel::GetError)
         ;
         

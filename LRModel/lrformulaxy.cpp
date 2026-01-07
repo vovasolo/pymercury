@@ -222,7 +222,8 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
     lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
-    if (status != 1 && status != 2 && status != 3) {
+    fit_status = status;
+    if (status < 1 || status > 3) {
         error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
 //        throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
         return false;
@@ -291,7 +292,8 @@ bool LRFormulaXY::doFit()
     lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
-    if (status != 1 && status != 2 && status != 3) {
+    fit_status = status;
+    if (status < 1 || status > 3) {
         error_msg = std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status);
 //        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
         return false;
