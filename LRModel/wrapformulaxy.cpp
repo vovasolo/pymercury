@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 
 #include "lrformulaxy.h"
 
@@ -41,8 +42,12 @@ PYBIND11_MODULE(lrformulaxy, m) {
         // Data fitting
         .def("fitData", &LRFormulaXY::fitData)
         .def("addData", &LRFormulaXY::addData)
+        .def("addDataPy", &LRFormulaXY::addDataPy)
         .def("doFit", &LRFormulaXY::doFit)
         .def("clearData", &LRFormulaXY::clearData)
+        .def_readwrite("qtol", &LRFormulaXY::qtol)
+        .def_readwrite("fvec", &LRFormulaXY::fvec)
+        .def_readwrite("fjac", &LRFormulaXY::fjac)
 
         // Spline + JSON
 //        .def("getSpline",
