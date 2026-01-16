@@ -169,6 +169,10 @@ PYBIND11_MODULE(lrmodel, m) {
         .def("GroupAsJson", &LRModel::GroupGetJsonString)
 
 // reporting 
+        .def("IsValid", &LRModel::isValid)
+        .def("IsReady", &LRModel::isReady)
+        .def("IsModelValid", &LRModel::isModelValid)
+        .def("IsModelReady", &LRModel::isModelReady)
         .def("GetLRFError", &LRModel::GetLRFError)
         .def("GetJSONError", &LRModel::GetJSONError)
         .def("GetError", &LRModel::GetError)

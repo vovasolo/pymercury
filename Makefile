@@ -1,5 +1,6 @@
 CXX = g++
 CXXFLAGS = -O2 -Wall -fPIC -std=c++11 -fopenmp
+#CXXFLAGS = -g -Wall -fPIC -std=c++11 -fopenmp
 INCLUDES = -ILRModel -Ispline123 -Ilib -I/usr/include/eigen3
 PYINCLUDES = $(shell python3 -m pybind11 --includes)
 
@@ -121,7 +122,7 @@ wraprec.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(PYINCLUDES) $(ROOTINCLUDES) wraprec.cpp
 
 test.o:
-	$(CXX) -c $(CXXFLAGS) $(INCLUDES) test.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) tests/test.cpp
 	
 clean:
 	rm -f *.o *.so
