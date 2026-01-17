@@ -22,6 +22,7 @@ LRFxyz* LRFxyz::clone() const
     LRFxyz *copy = new LRFxyz(*this);
     copy->bsr = bsr ? new Bspline3d(*bsr) : nullptr;
     copy->bsfit3d = bsfit3d ? bsfit3d->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 

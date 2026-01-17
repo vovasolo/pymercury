@@ -18,6 +18,7 @@ LRFxy* LRFxy::clone() const
     LRFxy *copy = new LRFxy(*this);
     copy->bsr = bsr ? new Bspline2d(*bsr) : nullptr;
     copy->bsfit2d = bsfit2d ? bsfit2d->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 
