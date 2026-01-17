@@ -229,6 +229,11 @@ void LRFxyz::ToJsonObject(Json_object &json) const
     json["ymax"] = ymax;
     json["zmin"] = zmin;
     json["zmax"] = zmax;
+    if (!bsr) {
+        json["nintx"] = nintx;
+        json["ninty"] = ninty;
+        json["nintz"] = nintz;
+    }
 
     std::vector <std::string> cstr;
     if (non_negative) cstr.push_back("non-negative");

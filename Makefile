@@ -43,6 +43,9 @@ pyformulaxy: $(OBJS123) $(OBJSLRM) wrapformulaxy.o
 test: $(OBJS123) $(OBJSLRM) test.o 
 	$(CXX) -o test $(OBJS123) $(OBJSLRM) test.o -fopenmp
 
+testxy: $(OBJS123) $(OBJSLRM) testxy.o 
+	$(CXX) -o testxy $(OBJS123) $(OBJSLRM) testxy.o -fopenmp
+
 json11.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) lib/json11.cpp
 
@@ -123,6 +126,9 @@ wraprec.o:
 
 test.o:
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) tests/test.cpp
+
+testxy.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) tests/testxy.cpp
 	
 clean:
 	rm -f *.o *.so
