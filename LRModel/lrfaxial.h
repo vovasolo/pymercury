@@ -11,7 +11,7 @@ class Compress1d;
 class LRFaxial : public LRF
 {
 public:
-    LRFaxial(double rmax, int nint);
+    LRFaxial(double x0, double y0, double rmax, int nint);
     LRFaxial(const Json &json);
     LRFaxial(std::string &json_str);    
 //    LRFaxial(const LRFaxial &obj); // copy constructor
@@ -20,9 +20,11 @@ public:
     virtual LRFaxial* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
+    virtual bool isValid () const {return bsr;}
     virtual bool isReady () const;
     virtual double getRmax() const { return rmax; }
     int getNint() const { return nint; }
+    std::vector <double> GetNodes() const;
     virtual double eval(double x, double y, double z=0.) const;
     virtual double evalraw(double x, double y, double z=0.) const;
     double evalAxial(double r) const;
@@ -85,7 +87,8 @@ protected:
     bool flattop = false;   // set to true if you want to have zero derivative at the origin
     bool non_increasing = false;
 
-    bool init_done = false;
+// safeguards
+    bool ready = false;
 };
 
 #endif // LRFAXIAL_H

@@ -1,6 +1,7 @@
 #include "lrfcomp.h"
 #include "json11.hpp"
 #include "profileHist.h"
+#include <stdexcept>
 
 LRFcomp* LRFcomp::clone() const 
 { 
@@ -25,8 +26,6 @@ LRFcomp::LRFcomp(const Json &json)
             // after throws added to mkFromJson() in lrf.cpp
         }
     }
-
-    valid = true;
 }
 
 LRFcomp::LRFcomp(std::string &json_str) : LRFcomp(Json::parse(json_str, json_err)) {}
@@ -75,11 +74,17 @@ void LRFcomp::AddLayer(LRF* lrf)
     active_layer = stack.size() - 1;
 }
 
+bool LRFcomp::isReady() const
+{
+    for (size_t i=0; i<GetCount(); i++)
+        if (!GetLayer(i)->isReady())
+            return false;
+    
+    return true;
+}
+
 bool LRFcomp::isValid() const
 {
-    if (!valid)
-        return false;
-
     for (size_t i=0; i<GetCount(); i++)
         if (!GetLayer(i)->isValid())
             return false;

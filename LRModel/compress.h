@@ -12,6 +12,7 @@ public:
     virtual ~Compress1d() {}
     virtual Compress1d* clone() const = 0;
     virtual double Rho(double r) const = 0;
+    virtual double Rho2R(double rho) const = 0;
     virtual double RhoDrv(double r) const = 0;
     virtual void ToJsonObject(Json_object &json) const = 0;
 
@@ -47,6 +48,7 @@ public:
     QuadraticCompress() {}
     QuadraticCompress* clone() const { return new QuadraticCompress(*this); }
     double Rho(double r) const {return r*r;}
+    double Rho2R(double rho) const {return sqrt(rho);}
     double RhoDrv(double r) const {return r*2.;}
     void ToJsonObject(Json_object &json) const;
 };
@@ -61,6 +63,7 @@ public:
     virtual DualSlopeCompress* clone() const { return new DualSlopeCompress(*this); }
     void Init();
     virtual double Rho(double r) const;
+    virtual double Rho2R(double rho) const;
     virtual double RhoDrv(double r) const;
     virtual void ToJsonObject(Json_object &json) const;
 

@@ -22,6 +22,7 @@ LRFxyz* LRFxyz::clone() const
     LRFxyz *copy = new LRFxyz(*this);
     copy->bsr = bsr ? new Bspline3d(*bsr) : nullptr;
     copy->bsfit3d = bsfit3d ? bsfit3d->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 
@@ -61,21 +62,17 @@ LRFxyz::LRFxyz(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline3d(json["response"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFxyz: invalid response");
-            return;            
-        }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
         nintz = bsr->GetNintZ();
+        ready = bsr->IsReady();
+        return; 
     } else if (nintx < 1 || ninty < 1 || nintz < 1) {
         json_err = std::string("LRFxyz: nintx/ninty/nintz is invalid or missing");
         return;
     } else {
         bsr = new Bspline3d(xmin, xmax, nintx, ymin, ymax, ninty, zmin, zmax, nintz);
     }
-
-    valid = true;
 }
 
 LRFxyz::LRFxyz(std::string &json_str) : LRFxyz(Json::parse(json_str, json_err)) {}
@@ -87,12 +84,12 @@ LRFxyz::~LRFxyz()
 
 bool LRFxyz::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFxyz::inDomain(double x, double y, double z) const
 {
-    return x>xmin && x<xmax && y>ymin && y<ymax && z>zmin && z<zmax;
+    return x>=xmin && x<=xmax && y>=ymin && y<=ymax && z>=zmin && z<=zmax;
 }
 
 // TODO: Check WTF is Rmax for
@@ -176,10 +173,10 @@ bool LRFxyz::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -204,10 +201,9 @@ bool LRFxyz::doFit()
     if (bsfit3d->BinnedFit()) {
         delete bsr;
         bsr = bsfit3d->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }
@@ -234,6 +230,11 @@ void LRFxyz::ToJsonObject(Json_object &json) const
     json["ymax"] = ymax;
     json["zmin"] = zmin;
     json["zmax"] = zmax;
+    if (!bsr) {
+        json["nintx"] = nintx;
+        json["ninty"] = ninty;
+        json["nintz"] = nintz;
+    }
 
     std::vector <std::string> cstr;
     if (non_negative) cstr.push_back("non-negative");

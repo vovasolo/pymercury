@@ -18,6 +18,7 @@ LRFxy* LRFxy::clone() const
     LRFxy *copy = new LRFxy(*this);
     copy->bsr = bsr ? new Bspline2d(*bsr) : nullptr;
     copy->bsfit2d = bsfit2d ? bsfit2d->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 
@@ -53,20 +54,16 @@ LRFxy::LRFxy(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline2d(json["response"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFxy: invalid response");
-            return;            
-        }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
+        ready = bsr->IsReady();
+        return;   
     } else if (nintx < 1 || ninty < 1) {
         json_err = std::string("LRFxy: nintx or ninty is invalid or missing");
         return;
     } else {
         bsr = new Bspline2d(xmin, xmax, nintx, ymin, ymax, ninty);
     }
-
-    valid = true;
 }
 
 LRFxy::LRFxy(std::string &json_str) : LRFxy(Json::parse(json_str, json_err)) {}
@@ -78,12 +75,12 @@ LRFxy::~LRFxy()
 
 bool LRFxy::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFxy::inDomain(double x, double y, double /*z*/) const
 {
-    return x>xmin && x<xmax && y>ymin && y<ymax;
+    return x>=xmin && x<=xmax && y>=ymin && y<=ymax;
 }
 
 // TODO: Check WTF is Rmax for
@@ -142,10 +139,10 @@ bool LRFxy::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -170,10 +167,9 @@ bool LRFxy::doFit()
     if (bsfit2d->BinnedFit()) {
         delete bsr;
         bsr = bsfit2d->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }
@@ -198,6 +194,10 @@ void LRFxy::ToJsonObject(Json_object &json) const
     json["xmax"] = xmax;
     json["ymin"] = ymin;
     json["ymax"] = ymax;
+    if (!bsr) {
+        json["nintx"] = nintx;
+        json["ninty"] = ninty;
+    }
 
     std::vector <std::string> cstr;
     if (non_negative) cstr.push_back("non-negative");

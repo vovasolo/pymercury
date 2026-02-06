@@ -1,0 +1,292 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "spline123/bsfit123.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/spline123/bsfit123.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "spline123/bspline123d.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/spline123/bspline123d.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfaxial.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfaxial.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/compress.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/compress.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "spline123/profileHist.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/spline123/profileHist.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfaxial3d.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfaxial3d.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfxy.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfxy.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "lib/json11.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/lib/json11.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfxyz.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfxyz.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfcomp.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfcomp.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrf.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrf.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrfio.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrfio.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/lrmodel.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/lrmodel.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "LRModel/transform.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/LRModel/transform.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "-I../Minuit2/inc",
+      "reconstructor.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/reconstructor.cpp"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-O2",
+      "-Wall",
+      "-fPIC",
+      "-std=c++11",
+      "-fopenmp",
+      "-ILRModel",
+      "-Ispline123",
+      "-Ilib",
+      "-I/usr/include/eigen3",
+      "-I../Minuit2/inc",
+      "reconstructor_mp.cpp"
+    ],
+    "directory": "/data/Work/Mercury/github2025/pymercury-test",
+    "file": "/data/Work/Mercury/github2025/pymercury-test/reconstructor_mp.cpp"
+  }
+]

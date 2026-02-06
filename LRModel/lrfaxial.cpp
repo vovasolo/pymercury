@@ -5,11 +5,11 @@
 #include "json11.hpp"
 #include "profileHist.h"
 
-#include <iostream>
+//#include <iostream>
 #include <string>
 
-LRFaxial::LRFaxial(double rmax, int nint) :
-    rmax(rmax), nint(nint)
+LRFaxial::LRFaxial(double x0, double y0, double rmax, int nint) :
+    x0(x0), y0(y0), rmax(rmax), nint(nint)
 {
     bsr = new Bspline1d(rmin, rmax, nint);
     Init();
@@ -21,6 +21,7 @@ LRFaxial* LRFaxial::clone() const
     copy->bsr = bsr ? new Bspline1d(*bsr) : nullptr;
     copy->compress = compress ? compress->clone() : nullptr;
     copy->bsfit = bsfit ? bsfit->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 
@@ -32,7 +33,6 @@ void LRFaxial::Init()
     xmax = x0+rmax;
     ymin = y0-rmax;
     ymax = y0+rmax;
-    init_done = true;
 }
 
 void LRFaxial::SetOrigin(double x0, double y0)
@@ -112,19 +112,15 @@ LRFaxial::LRFaxial(const Json &json)
 
     if (json["response"]["bspline3"].is_object()) {
         bsr = new Bspline1d(json["response"]["bspline3"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFaxial: invalid response");
-            return;
-        }
         nint = bsr->GetNint();
+        ready = bsr->IsReady();
+        return;
     } else if (nint < 1) {
-        json_err = std::string("LRFaxial: nint is invalid or missing");
+        json_err = std::string("LRFaxial: nint is invalid or missing in JSON");
         return;
     } else {
         bsr = new Bspline1d(Rho(rmin), Rho(rmax), nint);
     }
-
-    valid = true;
 }
 
 LRFaxial::LRFaxial(std::string &json_str) : LRFaxial(Json::parse(json_str, json_err)) {}
@@ -136,15 +132,24 @@ LRFaxial::~LRFaxial()
     delete bsfit;
 }
 
+std::vector <double> LRFaxial::GetNodes() const
+{
+    std::vector <double> nodes = bsr->GetNodes();
+    if (compress) 
+        for (auto &node : nodes)
+            node = compress->Rho2R(node);
+    return nodes;
+}
+
 bool LRFaxial::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFaxial::inDomain(double x, double y, double /*z*/) const
 {
     double r2 = R2(x,y);
-    return (r2 < rmax2) && (r2 > rmin2);
+    return (r2 <= rmax2) && (r2 >= rmin2);
 }
 
 double LRFaxial::Rho(double r) const
@@ -237,10 +242,10 @@ bool LRFaxial::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -265,10 +270,9 @@ bool LRFaxial::doFit()
     if (bsfit->BinnedFit()) {
         delete bsr;
         bsr = bsfit->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }

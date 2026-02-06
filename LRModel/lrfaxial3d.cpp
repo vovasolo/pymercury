@@ -10,7 +10,7 @@
 // ToDo: this gets pretty ugly, think about inheriting directly from LRF
 
 LRFaxial3d::LRFaxial3d(double rmax, int nint, double zmin, double zmax,
-            int nintz) : LRFaxial(rmax, nint)
+            int nintz) : LRFaxial(0, 0, rmax, nint)
 {
 //    this->rmax = rmax;
 //    this->nint = nint;
@@ -31,6 +31,7 @@ LRFaxial3d* LRFaxial3d::clone() const
 // an example of an ugly part: need keep track of unused stuff 
     copy->bsr = nullptr;
     copy->bsfit = nullptr;
+    copy->ready = false;
     return copy;
 }
 
@@ -85,12 +86,10 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
       
     if (json["response"]["tpspline3"].is_object()) {
         bs2r = new Bspline2d(json["response"]["tpspline3"]);
-        if (bs2r->isInvalid()) {
-            json_err = std::string("LRFaxial3D: invalid response");
-            return;
-        }
         nint = bs2r->GetNintX();
         nintz = bs2r->GetNintY();
+        ready = bs2r->IsReady();
+        return;
     } else if (nint < 1 || nintz < 1) {
         json_err = std::string("LRFaxial3D: nint or nintz is invalid or missing");
         return;
@@ -99,8 +98,6 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
         std::cout << RhoZ(zmin) << " , " << RhoZ(zmax) << std::endl;
         bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
     }
-
-    valid = true;
 }
 
 LRFaxial3d::~LRFaxial3d()
@@ -111,12 +108,12 @@ LRFaxial3d::~LRFaxial3d()
 
 bool LRFaxial3d::isReady() const
 {
-    return true; // (bs2r != 0) && bs2r->IsReady();
+    return ready;
 }
 
 bool LRFaxial3d::inDomain(double x, double y, double z) const
 {
-    return LRFaxial::inDomain(x, y) && z>zmin && z<zmax;
+    return LRFaxial::inDomain(x, y) && z >= zmin && z <= zmax;
 }
 
 double LRFaxial3d::eval(double x, double y, double z) const
@@ -176,10 +173,10 @@ bool LRFaxial3d::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bs2r;
         bs2r = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -204,10 +201,9 @@ bool LRFaxial3d::doFit()
     if (bs2fit->BinnedFit()) {
         delete bs2r;
         bs2r = bs2fit->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }

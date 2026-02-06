@@ -1,6 +1,8 @@
 #include "bspline123d.h"
+#include <vector>
+#include <stdexcept>
 
-#include <iostream>
+//#include <iostream>
 
 #ifdef BSIO
 #include "json11.hpp"
@@ -70,6 +72,16 @@ void BsplineBasis1d::Init(double xmin, double xmax, int n_int)
     dx = xr-xl;
     nbas = nint + 3;
     fValid = true;
+}
+
+std::vector <double> BsplineBasis1d::GetNodes() const
+{
+    std::vector<double> nodes(nint+1); 
+    double ddx = dx/nint;
+    for (int i=0; i<nint; i++)
+        nodes[i] = xl + i*ddx;
+    nodes[nint] = xr;
+    return nodes;
 }
 
 // translate x coordinates into interval index idx and position inside the interval xf
@@ -176,6 +188,8 @@ double Bspline1d::Eval_slow(double x) const
 
 double Bspline1d::Eval(double x) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline1d: spline isn't ready for Eval()"));
     int ix;
     double xf;
 
@@ -295,6 +309,7 @@ Bspline1d::Bspline1d(const Json &json) : BsplineBasis1d(json)
         c[i] = data[i].number_value();
 
     SetCoef(c);
+    fReady = true;
 }
 
 Bspline1d::Bspline1d(std::string &json_str) : Bspline1d(Json::parse(json_str, json_err)) {}
@@ -449,6 +464,9 @@ double Bspline2d::Eval_slow(double x, double y) const
 
 double Bspline2d::Eval(double x, double y) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline2d: spline isn't ready for Eval()"));
+
     int ix, iy;
     double xf, yf;
     if (!bsx.Locate(x, &ix, &xf) || !bsy.Locate(y, &iy, &yf))
@@ -579,6 +597,7 @@ Bspline2d::Bspline2d(const Json &json) : BsplineBasis2d(json)
         c[i] = data[i].number_value();
 
     SetCoef(c);
+    fReady = true;
 }
 
 Bspline2d::Bspline2d(std::string &json_str) : Bspline2d(Json::parse(json_str, json_err)) {}
@@ -591,8 +610,8 @@ void Bspline2d::ToJsonObject(Json::object &json) const
     json["ymax"] = bsy.GetXmax();
     json["xintervals"] = nintx;
     json["yintervals"] = ninty;
-
-    json["data"] = GetCoef();
+    if (fReady)
+        json["data"] = GetCoef();
 }
 
 Json::object Bspline2d::GetJsonObject() const
@@ -719,6 +738,9 @@ void Bspline3d::Init()
 
 double Bspline3d::Eval(double x, double y, double z) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline3d: spline isn't ready for Eval()"));
+
     int ix, iy, iz;
     double xf, yf, zf;
 //    std::cout << x << " " << y << " " << z << "\n";
@@ -867,12 +889,13 @@ void Bspline3d::ToJsonObject(Json::object &json) const
     json["zmin"] = bsz.GetXmin();
     json["zmax"] = bsz.GetXmax();
     json["zintervals"] = nintz;
-
-    std::vector < std::vector <double> > data;
-    for (int i=0; i<nbasz; i++) {
-        data.push_back(Zplane[i]->GetCoef());
+    if (fReady) {
+        std::vector < std::vector <double> > data;
+        for (int i=0; i<nbasz; i++) {
+            data.push_back(Zplane[i]->GetCoef());
+        }
+        json["data"] = data;
     }
-    json["data"] = data;
 }
 
 Json::object Bspline3d::GetJsonObject() const

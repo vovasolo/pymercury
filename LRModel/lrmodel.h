@@ -119,6 +119,9 @@ public:
     bool GroupExists(int gid) const {return gid>=0 && gid<Group.size();}
 //    int GetLRFCount() const {return Lrf.size();}
 
+    bool isModelValid();
+    bool isModelReady();
+
     void ClearAll();
     void ResetGroups();
     void AddSensor(int id, double x, double y);
@@ -155,6 +158,9 @@ public:
     std::string GetGroupJsonLRF(int gid) {LRF *p; return (p = GetGroupLRF(gid)) ? p->GetJsonString() : "";}
     void SetDefaultLRF(LRF *default_lrf) {DefaultLRF = default_lrf;}
     void SetDefaultJsonLRF(std::string json_str) {DefaultLRF = LRF::mkFromJson(json_str);}
+    std::vector<double> GetLimits(int id);
+    bool isValid(int id) {LRF *p; return (p = GetLRF(id)) ? p->isValid() : false;}
+    bool isReady(int id) {LRF *p; return (p = GetLRF(id)) ? p->isReady() : false;}
 
 // Access to Profile Histograms
     std::vector <int> GetHistBins(int id);
@@ -175,7 +181,7 @@ public:
 // Evaluation
     bool InDomain(int id, double *pos_world);
 // ToDo:    void DoTransform(int id, double *pos_world) {};
-    double Eval(int id, double *pos_world);
+    double Eval(int id, const double *pos_world);
     double EvalLocal(int id, double *pos_local) { return GetLRF(id)->eval(pos_local)*GetGain(id); }
     double EvalDrvX(int id, double *pos_world);
     double EvalDrvY(int id, double *pos_world);
@@ -212,6 +218,7 @@ public:
     void ClearSensorFitData(int id);
     void ClearGroupFitData(int gid);
     void ClearAllFitData();
+    int GetFitStatus(int id) {LRF *p; return (p = GetLRF(id)) ? p->fit_status : -100;}
 
 // Correction factors (light collection)
     bool SetRefPoint(double x, double y, double z=0);
@@ -259,12 +266,14 @@ public:
     void ReadGroup(const Json &json);
 
 // Reporting
-    std::string GetLRFError() {return LRF::gjson_err;}
-    std::string GetError() {return lrm_err;}     
+    std::string GetError() {return lrm_err;}
+    std::string GetJSONError() {return LRF::gjson_err;}
+    std::string GetLRFError(int id) {LRF *p; return (p = GetLRF(id)) ? p->error_msg : "";}
 
 // Utility
     double GetMaxR(int id, const std::vector <LRFdata> &data) const;
     double GetGroupMaxR(int gid, const std::vector <LRFdata> &data) const;
+    bool isThreadSafe() const;
 
 protected:
     std::vector <LRSensor> Sensor;
@@ -286,6 +295,7 @@ public:
     GainEstimator(std::string lrmtxt);
     ~GainEstimator();
     bool AddData(int id, const std::vector <Vec4data> &data);
+    bool AddRawData(int id, const std::vector <Vec3data> &xyz, const std::vector <double> &a, const std::vector <bool> &good);
     double GetRelativeGain(int id, int refid);
     std::vector <double> GetRelativeGainsList(std::vector <int> ids, int refid);
 //    std::vector <int> GetAllSensors();

@@ -6,6 +6,7 @@
 #include <cmath>
 #include "json11.hpp"
 //#include <complex>
+#include <cstddef>
 #include <iostream>
 
 double LRSensor::GetRadius() const
@@ -49,6 +50,24 @@ void LRModel::ClearAll()
     }
     Sensor.clear();
     Group.clear();
+}
+
+bool LRModel::isModelValid()
+{
+    size_t nsens = GetSensorCount();
+    for (size_t i=0; i<nsens; i++)
+        if (!isValid(i))
+            return false;
+    return true;
+}
+
+bool LRModel::isModelReady()
+{
+    size_t nsens = GetSensorCount();
+    for (size_t i=0; i<nsens; i++)
+        if (!isReady(i))
+            return false;
+    return true;
 }
 
 void LRModel::ResetGroups()
@@ -230,6 +249,35 @@ LRF *LRModel::GetGroupLRF(int gid)
     return Group.at(gid).glrf;
 }
 
+std::vector<double> LRModel::GetLimits(int id)
+{
+    LRF *lrf = GetLRF(id);
+    double xmin = lrf->getXmin();
+    double xmax = lrf->getXmax();
+    double ymin = lrf->getYmin();
+    double ymax = lrf->getYmax();
+    double z = 0.;
+
+    Transform *tr = GetTransform(id);
+    if (tr) {
+        double p0x = xmin, p0y = ymin;
+        double p1x = xmax, p1y = ymin;
+        double p2x = xmax, p2y = ymax;
+        double p3x = xmin, p3y = ymax;
+        tr->DoInvTransform(&p0x, &p0y, &z);
+        tr->DoInvTransform(&p1x, &p1y, &z);
+        tr->DoInvTransform(&p2x, &p2y, &z);
+        tr->DoInvTransform(&p3x, &p3y, &z);
+        xmin =std::min({p0x, p1x, p2x, p3x});
+        xmax =std::max({p0x, p1x, p2x, p3x});
+        ymin =std::min({p0y, p1y, p2y, p3y});
+        ymax =std::max({p0y, p1y, p2y, p3y});
+    }
+
+    return std::vector<double> ({xmin, xmax, ymin, ymax});
+}
+
+
 // Evaluation: direct coordinates versions
 
 bool LRModel::InDomain(int id, double x, double y, double z)
@@ -391,7 +439,7 @@ bool LRModel::InDomain(int id, double *pos_world)
     return f ? f->inDomain(x, y, z) : false;
 }
 
-double LRModel::Eval(int id, double *pos_world)
+double LRModel::Eval(int id, const double *pos_world)
 {
     double x = pos_world[0];
     double y = pos_world[1];
@@ -442,7 +490,7 @@ bool LRModel::FitNotBinnedData(int id, const std::vector <Vec4data> &data)
         trdata.push_back(d);
     }
     LRF *f = GetLRF(id);
-    return f ? f->addData(trdata) : false;
+    return f ? f->fitData(trdata) : false;
 }
 
 bool LRModel::AddFitData(int id, const std::vector <Vec4data> &data)
@@ -1085,6 +1133,20 @@ double LRModel::GetGroupMaxR(int gid, const std::vector <LRFdata> &data) const
     return maxr;
 }
 
+bool LRModel::isThreadSafe() const
+{
+    bool result = true;
+    for (auto s: Sensor) {
+        if (s.lrf)
+            result = result && s.lrf->thread_safe;
+    }
+    for (auto g: Group) {
+        if (g.glrf)
+            result = result && g.glrf->thread_safe;
+    }
+    return result;
+}
+
 // ============ Gain estimator ===============
 
 // We'll be using gain estimator to equalize the sensors in the same group 
@@ -1121,6 +1183,13 @@ bool GainEstimator::AddData(int id, const std::vector <Vec4data> &data)
     if (M->GetLRF(id) == nullptr)
         return false;
     return M->AddFitData(id, data);
+}
+
+bool GainEstimator::AddRawData(int id, const std::vector <Vec3data> &xyz, const std::vector <double> &a, const std::vector <bool> &good)
+{
+    if (M->GetLRF(id) == nullptr)
+        return false;
+    return M->AddFitRawData(id, xyz, a, good);
 }
 
 // ToDo: swap id and refid!

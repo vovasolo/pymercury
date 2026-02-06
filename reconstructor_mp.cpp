@@ -7,6 +7,7 @@ ReconstructorMP::ReconstructorMP(LRModel *lrm, int n_threads)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecCoG(lrm));
     }
+    progress.resize(n_threads, 0);
 }
 
 ReconstructorMP::ReconstructorMP(std::string json_str, int n_threads)
@@ -14,6 +15,7 @@ ReconstructorMP::ReconstructorMP(std::string json_str, int n_threads)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecCoG(json_str));
     }
+    progress.resize(n_threads, 0);
 }
 
 ReconstructorMP::~ReconstructorMP()
@@ -52,7 +54,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     cov_yy.resize(n_evt);		// variance in y
     cov_xy.resize(n_evt);		// covariance xy
 
-    int jmin[n_thr], jmax[n_thr];
+    std::vector<int> jmin(n_thr), jmax(n_thr);
     int chunk = n_evt/n_thr;
     for (int i=0; i<n_thr; i++) {
         jmin[i] = i*chunk;
@@ -60,10 +62,14 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
 //        std::cout << jmin[i] << ", " << jmax[i] << std::endl;
     }
     jmax[n_thr-1] = n_evt;
+    abort = false;
+    std::fill(progress.begin(), progress.end(), 0);
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
         for (int j=jmin[i]; j<jmax[i]; j++) {
+            if (abort)
+                continue;
             recs[i]->ProcessEvent(A[j], Sat[j]);
             rec_status[j] = recs[i]->getRecStatus();
             rec_x[j] = recs[i]->getRecX();
@@ -76,6 +82,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
             cov_xx[j] = recs[i]->getCovXX();
             cov_yy[j] = recs[i]->getCovYY();
             cov_xy[j] = recs[i]->getCovXY();
+            progress[i] += 1;
         }
     }
 }
@@ -98,7 +105,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     cov_yy.resize(n_evt);		// variance in y
     cov_xy.resize(n_evt);		// covariance xy
 
-    int jmin[n_thr], jmax[n_thr];
+    std::vector<int> jmin(n_thr), jmax(n_thr);
     int chunk = n_evt/n_thr;
     for (int i=0; i<n_thr; i++) {
         jmin[i] = i*chunk;
@@ -106,10 +113,14 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
 //        std::cout << jmin[i] << ", " << jmax[i] << std::endl;
     }
     jmax[n_thr-1] = n_evt;
+    abort = false;
+    std::fill(progress.begin(), progress.end(), 0);
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
         for (int j=jmin[i]; j<jmax[i]; j++) {
+            if (abort) 
+                continue;
             recs[i]->ProcessEvent(A[j], Sat[j], Guess[j]);
             rec_status[j] = recs[i]->getRecStatus();
             rec_x[j] = recs[i]->getRecX();
@@ -122,32 +133,55 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
             cov_xx[j] = recs[i]->getCovXX();
             cov_yy[j] = recs[i]->getCovYY();
             cov_xy[j] = recs[i]->getCovXY();
+            progress[i] += 1;
         }
     }
 }
 
+int ReconstructorMP::getProgress()
+{
+    int acc = 0;
+    for (auto n: progress)
+        acc += n;
+    return acc;
+}
+
 RecLS_MP::RecLS_MP(LRModel *lrm, int n_threads, bool weighted)
 {
-    for (int i=0; i<n_threads; i++) {
-        recs.push_back(new RecLS(lrm, weighted));
+    if (lrm->isThreadSafe())
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecLS(lrm, weighted));
+    else {
+        std::string json_str = lrm->GetJsonString();
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecLS(json_str, weighted));
     }
+    progress.resize(n_threads, 0);
 }
 RecLS_MP::RecLS_MP(std::string json_str, int n_threads, bool weighted)
 {
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecLS(json_str, weighted));
     }
+    progress.resize(n_threads, 0);
 }
 
 RecML_MP::RecML_MP(LRModel *lrm, int n_threads)
 {
-    for (int i=0; i<n_threads; i++) {
-        recs.push_back(new RecML(lrm));
+    if (lrm->isThreadSafe())
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecML(lrm));
+    else {
+        std::string json_str = lrm->GetJsonString();
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecML(json_str));
     }
+    progress.resize(n_threads, 0);
 }
 RecML_MP::RecML_MP(std::string json_str, int n_threads)
 {
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecML(json_str));
     }
+    progress.resize(n_threads, 0);
 }
