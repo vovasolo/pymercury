@@ -6,6 +6,7 @@
 #include "formulav.h"
 #include "formulaxy.h"
 #include "lrm.h"
+#include "rec.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals; 
@@ -21,5 +22,8 @@ PYBIND11_MODULE(_mercury, m) {
 
     auto m_lrm = m.def_submodule("lrm", "lrm");
     init_lrm(m_lrm);
+
+    auto m_rec = m.def_submodule("rec", "rec");
+    init_rec(m_rec);
 
 }

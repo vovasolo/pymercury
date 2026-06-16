@@ -6,7 +6,7 @@
 namespace py = pybind11;
 using namespace pybind11::literals; 
 
-void init_prec(py::module& m){
+void init_rec(py::module& m){
     py::class_<RecCoG>(m, "RecCoG")
         .def(py::init<std::string &>())
 
