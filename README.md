@@ -1,29 +1,44 @@
-# pymercury
-Position reconstruction in scintillation detectors
+# Mercury
 
-## Installation
-Check if the following dependencies are satisfied: 
-* eigen3 linear algebra library (on Linux, it can be normally installed from repositories) with
-  `sudo apt install libeigen3-dev` (Debian-based) or 
-  `yum install eigen3-devel` (RPM-based)
-* CERN ROOT package with Minuit2
-* Python 3 development headers and pybind11 (`pip install pybind11`)
+## C++
 
-Build shared libraries `lrmodel.so` and `mercury.so`:
-```bash
-make pylrm
-make pymercury
+The C++ library can be found in the lib directory.  This library is built using cmake and can be built using the standard tools 
+```
+cmake -S lib -B build-lib
+cmake --build build-lib
 ```
 
-Then copy the shared libraries into the place where they will be picked up by your Python interpreter. 
-You can get the list of such places by running the following script:
-```python
-import sys
-print(sys.path)
+This code can be integrated into C++/cmake build systems using 
+
+```
+include(FetchContent)
+
+
+FetchContent_Declare(
+  EMercury
+  GIT_REPOSITORY https://github.com/vovasolo/pymercury
+  SOURCE_SUBDIR lib
+)
+FetchContent_MakeAvailable(Mercury)
+
+...
+
+target_link_libraries(TARGET_NAME PRIVATE Mercury)
+
 ```
 
-To import, use
-```python
-import lrmodel
+## Python
+
+This repo also contains a Python binding of the C++ library.  These binding, created using pybind11 and contained in the src/include directories, can be installed using pip.  To install the remote copy you can use 
+```
+pip install git+https://github.com/vovasolo/pymercury.git
+```
+If you are doing development you can install the local version using 
+```
+pip install .
+```
+
+In both cases you can access the package using 
+```
 import mercury
 ```
