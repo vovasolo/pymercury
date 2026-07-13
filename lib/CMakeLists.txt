@@ -26,9 +26,9 @@ if(NOT ROOT_Minuit2_FOUND)
   message(STATUS "Minuit2 not found; using github version")
   FetchContent_Declare(
     Minuit2
-    GIT_REPOSITORY https://github.com/root-project/root
-    GIT_TAG v6-37-01
-    SOURCE_SUBDIR math/minuit2
+    GIT_REPOSITORY https://github.com/GooFit/Minuit2
+#    GIT_TAG v6-37-01
+#    SOURCE_SUBDIR math/minuit2
   )
   FetchContent_MakeAvailable(Minuit2)
   target_compile_definitions(Minuit2Math PUBLIC MATHCORE_STANDALONE)
@@ -37,22 +37,6 @@ if(NOT ROOT_Minuit2_FOUND)
 else()
   message(STATUS "Using system ROOT::Minuit2")
   set(Minuit_TARGET "ROOT::Minuit2")
-endif()
-
-FetchContent_Declare(
-  json11
-  GIT_REPOSITORY https://github.com/dropbox/json11.git
-  GIT_TAG        master
-)
-FetchContent_MakeAvailable(json11)
-
-# To to modify the JSON11 library as it is not compatiable with newer gcc compiler
-set(json11_cpp "${json11_SOURCE_DIR}/json11.cpp")
-file(READ "${json11_cpp}" json11_src)
-string(FIND "${json11_src}" "#include <cstdint>" found_include)
-if(found_include EQUAL -1)
-  string(PREPEND json11_src "#include <cstdint>\n")
-  file(WRITE "${json11_cpp}" "${json11_src}")
 endif()
 
 file(GLOB_RECURSE MERCURY_CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
@@ -64,13 +48,13 @@ target_include_directories(Mercury
   PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include/mercury"
     "${CMAKE_CURRENT_SOURCE_DIR}/ext"
-    "${json11_SOURCE_DIR}"
+#    "${json11_SOURCE_DIR}"
     $<TARGET_PROPERTY:Eigen3::Eigen,INTERFACE_INCLUDE_DIRECTORIES>  # if eigen target available
     "${Minuit2_SOURCE_DIR}/inc"
     "${Minuit2_SOURCE_DIR}/../mathcore/inc"
     "${Minuit2_SOURCE_DIR}/../../core/foundation/inc"
 )
-target_link_libraries(Mercury PUBLIC json11 Eigen3::Eigen ${Minuit_TARGET})
+target_link_libraries(Mercury PUBLIC Eigen3::Eigen ${Minuit_TARGET})
 set_target_properties(Mercury PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(testMercury tests/test.cpp)

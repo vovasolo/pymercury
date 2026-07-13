@@ -27,7 +27,8 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Typing :: Typed",
 ]
-dynamic = ["version"]
+#dynamic = ["version"]
+version = "1.0.0"
 dependencies = []
 
 [project.optional-dependencies]
