@@ -5,6 +5,9 @@ set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 add_subdirectory(lib)
 pybind11_add_module(_mercury MODULE "src/mercury/binding.cpp" "src/mercury/axial.cpp" "src/mercury/formula1.cpp" "src/mercury/formulav.cpp" "src/mercury/formulaxy.cpp" "src/mercury/lrm.cpp" "src/mercury/rec.cpp")
+# uncomment the following line if LRF fitting takes a lot of time or 
+# running multithreaded reconstruction results in a crash
+# target_compile_options(_mercury PRIVATE -O2 -fopenmp)
 target_include_directories(_mercury PRIVATE include)
 target_link_libraries(_mercury PRIVATE Mercury)
 install(TARGETS _mercury DESTINATION ${SKBUILD_PROJECT_NAME})
