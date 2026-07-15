@@ -8,6 +8,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(FetchContent)
 
+find_package(OpenMP)
+
 find_package(Eigen3)
 if(NOT Eigen3_FOUND)
   message(STATUS "Eigen3 not found; using github version")
@@ -49,12 +51,17 @@ target_include_directories(Mercury
     "${CMAKE_CURRENT_SOURCE_DIR}/include/mercury"
     "${CMAKE_CURRENT_SOURCE_DIR}/ext"
 #    "${json11_SOURCE_DIR}"
-    $<TARGET_PROPERTY:Eigen3::Eigen,INTERFACE_INCLUDE_DIRECTORIES>  # if eigen target available
+#    $<TARGET_PROPERTY:Eigen3::Eigen,INTERFACE_INCLUDE_DIRECTORIES>  # if eigen target available
     "${Minuit2_SOURCE_DIR}/inc"
     "${Minuit2_SOURCE_DIR}/../mathcore/inc"
     "${Minuit2_SOURCE_DIR}/../../core/foundation/inc"
 )
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(Mercury PRIVATE OpenMP::OpenMP_CXX)
+endif()
 target_link_libraries(Mercury PUBLIC Eigen3::Eigen ${Minuit_TARGET})
+#target_link_options(Mercury PRIVATE -fopenmp)
 set_target_properties(Mercury PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(testMercury tests/test.cpp)
