@@ -49,7 +49,7 @@ target_include_directories(Mercury
     "${CMAKE_CURRENT_SOURCE_DIR}/include/mercury"
     "${CMAKE_CURRENT_SOURCE_DIR}/ext"
 #    "${json11_SOURCE_DIR}"
-    $<TARGET_PROPERTY:Eigen3::Eigen,INTERFACE_INCLUDE_DIRECTORIES>  # if eigen target available
+#    $<TARGET_PROPERTY:Eigen3::Eigen,INTERFACE_INCLUDE_DIRECTORIES>  # if eigen target available
     "${Minuit2_SOURCE_DIR}/inc"
     "${Minuit2_SOURCE_DIR}/../mathcore/inc"
     "${Minuit2_SOURCE_DIR}/../../core/foundation/inc"
